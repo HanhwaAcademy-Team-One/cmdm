@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CMDM — 협동로봇 제조 데이터 관리 온톨로지</title>
+<meta name="description" content="협동로봇 제조 데이터 관리 온톨로지(CMDM) 스키마와 SHACL 검증 규칙">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+KR:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="assets/style.css">
+
+</head>
+<body>
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href=""><span class="brand-mark" aria-hidden="true"></span>CMDM</a>
+    <nav class="topnav" aria-label="사이트"><a href="" aria-current="page">개요</a><a href="ontology/">스키마</a><a href="shapes/">검증 규칙</a><a href="https://github.com/HanhwaAcademy-Team-One/cmdm" rel="noopener">GitHub</a></nav>
+  </div>
+</header>
+<main>
+<section class="hero hero-home">
+  <div class="wrap">
+    <p class="eyebrow">OPMS 프로젝트 · 온톨로지 v1.0.0</p>
+    <h1>협동로봇 제조 데이터를<br>하나의 언어로</h1>
+    <p class="lead">CMDM은 협동로봇의 모델 사양, 설계 BOM, 전기 인터페이스, 안전 설정, 운영·보전 데이터를 연결하는 OWL 2 온톨로지입니다. 사양서를 적재할 때는 SHACL 규칙이 입력 게이트 역할을 합니다.</p>
+    <div class="actions">
+      <a class="btn primary" href="ontology/">스키마 문서</a>
+      <a class="btn" href="shapes/">검증 규칙</a>
+      <a class="btn" href="ontology/cmdm.ttl" download>cmdm.ttl</a>
+    </div>
+    <ul class="stats">
+      <li><strong>149</strong>클래스</li>
+      <li><strong>294</strong>속성</li>
+      <li><strong>27</strong>검증 셰이프</li>
+      <li><strong>v1.0.0</strong>현재 버전</li>
+    </ul>
+  </div>
+</section>
+
+<section class="wrap block">
+  <h2>모듈</h2>
+  <div class="mod-grid"><a class="mod-card" href="ontology/#mod-M1">
+  <span class="mod-code">M1</span>
+  <h3>제품·모델</h3>
+  <p>제품군, 로봇·컨트롤러 모델, 공급 구성품, 시리얼 단위 실물 자산과 외부 장비</p>
+  <p class="mod-n">클래스 17 · 속성 16</p>
+</a><a class="mod-card" href="ontology/#mod-M2">
+  <span class="mod-code">M2</span>
+  <h3>설계 BOM·CAD</h3>
+  <p>STEP AP214와 정렬된 아이템 정의, BOM 라인, CAD 파일·도면 메타데이터</p>
+  <p class="mod-n">클래스 27 · 속성 57</p>
+</a><a class="mod-card" href="ontology/#mod-M3">
+  <span class="mod-code">M3</span>
+  <h3>재질·물성</h3>
+  <p>부품 재질 등급과 재질 분류, 밀도</p>
+  <p class="mod-n">클래스 2 · 속성 4</p>
+</a><a class="mod-card" href="ontology/#mod-M4">
+  <span class="mod-code">M4</span>
+  <h3>기구·성능 사양</h3>
+  <p>관절, 기술 사양, 정지 성능, 고정 사양, 툴 플랜지, 관절 자세</p>
+  <p class="mod-n">클래스 7 · 속성 52</p>
+</a><a class="mod-card" href="ontology/#mod-M5">
+  <span class="mod-code">M5</span>
+  <h3>전기 I/O·통신</h3>
+  <p>포트·핀, I/O 채널과 할당 기능, Modbus, 컨베이어 엔코더</p>
+  <p class="mod-n">클래스 18 · 속성 36</p>
+</a><a class="mod-card" href="ontology/#mod-M6">
+  <span class="mod-code">M6</span>
+  <h3>안전·규격</h3>
+  <p>안전 기능·설정, 동작·관절 제한, 안전 경계, 위험성 평가, 규격·인증</p>
+  <p class="mod-n">클래스 16 · 속성 39</p>
+</a><a class="mod-card" href="ontology/#mod-M7">
+  <span class="mod-code">M7</span>
+  <h3>SW 설정·프로그램</h3>
+  <p>TCP, 마운팅, 사용자 좌표, 변수, 프로그램과 명령, 사용자 계정</p>
+  <p class="mod-n">클래스 39 · 속성 45</p>
+</a><a class="mod-card" href="ontology/#mod-M8">
+  <span class="mod-code">M8</span>
+  <h3>운영·모니터링·보전</h3>
+  <p>운영 상태, 관측 기록, 이벤트·에러 코드, 점검 계획과 이력</p>
+  <p class="mod-n">클래스 17 · 속성 31</p>
+</a><a class="mod-card" href="ontology/#mod-M9">
+  <span class="mod-code">M9</span>
+  <h3>조직·데이터 품질</h3>
+  <p>조직·사람, 원천 데이터 품질 이슈</p>
+  <p class="mod-n">클래스 6 · 속성 9</p>
+</a></div>
+</section>
+
+<section class="wrap block two-col">
+  <div>
+    <h2>불러오기</h2>
+    <p>RDF 도구(GraphDB, Protégé, rdflib 등)에서 아래 주소를 바로 불러올 수 있습니다.</p>
+    <pre><code>@prefix cmdm:   &lt;https://hanhwaacademy-team-one.github.io/cmdm/ontology#&gt; .
+@prefix cmdmsh: &lt;https://hanhwaacademy-team-one.github.io/cmdm/shapes#&gt; .
+
+# 최신본
+https://hanhwaacademy-team-one.github.io/cmdm/ontology/cmdm.ttl
+https://hanhwaacademy-team-one.github.io/cmdm/shapes/cmdm-shapes.ttl
+
+# 고정본 (v1.0.0)
+https://hanhwaacademy-team-one.github.io/cmdm/ontology/1.0.0/cmdm.ttl</code></pre>
+  </div>
+  <div>
+    <h2>IRI 규칙</h2>
+    <table class="iri-table">
+      <thead><tr><th>대상</th><th>형태</th></tr></thead>
+      <tbody>
+        <tr><td>스키마</td><td><code>…/cmdm/ontology#{용어}</code></td></tr>
+        <tr><td>버전</td><td><code>…/cmdm/ontology/{x.y.z}</code></td></tr>
+        <tr><td>검증 규칙</td><td><code>…/cmdm/shapes#{셰이프}</code></td></tr>
+        <tr><td>데이터</td><td><code>…/cmdm/id/{종류}/{식별자}</code></td></tr>
+      </tbody>
+    </table>
+    <p class="muted small">기반 주소는 <code>https://hanhwaacademy-team-one.github.io/cmdm/</code> 입니다. 데이터 IRI는 식별자로 쓰며 지금은 웹 페이지로 열리지 않습니다.</p>
+  </div>
+</section>
+
+<section class="wrap block">
+  <h2>버전</h2>
+  <p>공개된 버전은 고정되어 바뀌지 않습니다. 스키마를 바꾸면 새 버전 번호로 공개합니다.</p>
+  <ul class="versions"><li><strong>1.0.0</strong> <a href="ontology/1.0.0/">스키마</a> · <a href="ontology/1.0.0/cmdm.ttl">cmdm.ttl</a> · <a href="shapes/1.0.0/">규칙</a> · <a href="shapes/1.0.0/cmdm-shapes.ttl">cmdm-shapes.ttl</a></li></ul>
+</section>
+
+<section class="wrap block note">
+  <h2>가상 데이터 고지</h2>
+  <p>예시로 쓰인 제품군(VORLA 시리즈, 모델 V4·V7·V15), 컨트롤러, 운영 SW, 에러 코드, 도면번호, 아이템 코드, 수치 제한값, 매뉴얼 절 번호는 모두 이 프로젝트에서 만든 가상 값이며 실제 제품·회사와 관련이 없습니다. 이 사이트는 교육 목적의 비상업 프로젝트입니다.</p>
+</section>
+</main>
+<footer class="footer">
+  <div class="wrap">
+    <p>CMDM · 협동로봇 제조 데이터 관리 온톨로지 — OPMS 프로젝트 팀</p>
+    <p class="muted">이 사이트는 <code>src/*.ttl</code> 에서 <code>tools/build_docs.py</code> 로 생성됩니다.</p>
+  </div>
+</footer>
+<script src="assets/site.js"></script>
+</body>
+</html>

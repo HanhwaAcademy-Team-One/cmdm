@@ -1,0 +1,249 @@
+@prefix cmdm: <https://hanhwaacademy-team-one.github.io/cmdm/ontology#> .
+@prefix cmdmsh: <https://hanhwaacademy-team-one.github.io/cmdm/shapes#> .
+@prefix sh:   <http://www.w3.org/ns/shacl#> .
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+
+#################################################################
+#  CMDM SHACL 검증 규칙
+#  - Violation : 저장 차단 대상 (구조·범위 오류)
+#  - Warning   : 정제 필요 (누락·불일치)
+#  - Info      : 참고
+#  근거: 가상 VORLA 매뉴얼 V1.0 입력 제한값, STEP 속성 관례
+#################################################################
+
+cmdmsh: sh:declare [ sh:prefix "cmdm" ; sh:namespace "https://hanhwaacademy-team-one.github.io/cmdm/ontology#"^^xsd:anyURI ] ,
+                   [ sh:prefix "rdfs" ; sh:namespace "http://www.w3.org/2000/01/rdf-schema#"^^xsd:anyURI ] .
+
+# ---------------- M2 설계 BOM ----------------
+cmdmsh:ItemDefinitionShape a sh:NodeShape ;
+    sh:targetClass cmdm:ItemDefinition ;
+    sh:property [ sh:path cmdm:itemCode ; sh:minCount 1 ; sh:maxCount 1 ; sh:datatype xsd:string ;
+                  sh:message "아이템 코드는 정확히 1개여야 합니다." ] ;
+    sh:property [ sh:path cmdm:definedInFile ; sh:minCount 1 ; sh:class cmdm:CADModelFile ;
+                  sh:message "아이템은 정의 CAD 파일을 가져야 합니다." ] ;
+    sh:property [ sh:path cmdm:drawingNumber ; sh:pattern "^DW-[0-9]{2}-[0-9]{6}[A-Z]?$" ; sh:severity sh:Warning ;
+                  sh:message "도면번호 형식은 DW-21-004213B 형태여야 합니다." ] ;
+    sh:property [ sh:path cmdm:volume ; sh:minExclusive 0 ; sh:maxCount 1 ] ;
+    sh:property [ sh:path cmdm:partNumber ; sh:minCount 1 ; sh:severity sh:Warning ;
+                  sh:message "PLM 품번이 없습니다." ] .
+
+cmdmsh:PartMaterialShape a sh:NodeShape ;
+    sh:targetClass cmdm:PartDefinition ;
+    sh:property [ sh:path cmdm:madeOf ; sh:minCount 1 ; sh:maxCount 1 ; sh:class cmdm:Material ; sh:severity sh:Warning ;
+                  sh:message "부품 재질이 지정되지 않았습니다." ] .
+
+cmdmsh:AssemblyShape a sh:NodeShape ;
+    sh:targetClass cmdm:AssemblyDefinition ;
+    sh:property [ sh:path cmdm:hasBOMLine ; sh:minCount 1 ; sh:message "조립품은 BOM 라인이 1개 이상 필요합니다." ] .
+
+cmdmsh:BOMLineShape a sh:NodeShape ;
+    sh:targetClass cmdm:BOMLine ;
+    sh:property [ sh:path cmdm:bomParent ; sh:minCount 1 ; sh:maxCount 1 ; sh:class cmdm:AssemblyDefinition ] ;
+    sh:property [ sh:path cmdm:bomChild ; sh:minCount 1 ; sh:maxCount 1 ; sh:class cmdm:ItemDefinition ] ;
+    sh:property [ sh:path cmdm:quantity ; sh:minCount 1 ; sh:maxCount 1 ; sh:datatype xsd:positiveInteger ] ;
+    sh:sparql [
+        sh:message "BOM 순환 참조: 하위 아이템이 상위 아이템을 포함합니다." ;
+        sh:prefixes cmdmsh: ;
+        sh:select """
+            SELECT $this WHERE {
+              $this cmdm:bomParent ?p ; cmdm:bomChild ?c .
+              ?c (cmdm:hasBOMLine/cmdm:bomChild)* ?p .
+            }""" ] .
+
+# 질량 특성 타당성: 표면적은 같은 부피의 구 표면적보다 작을 수 없다 (등주 부등식)
+cmdmsh:MassPropertyShape a sh:NodeShape ;
+    sh:severity sh:Warning ;
+    sh:targetClass cmdm:PartDefinition ;
+    sh:sparql [
+        sh:message "표면적이 부피 대비 물리적으로 불가능하게 작습니다(질량 특성 재계산 필요)." ;
+        sh:prefixes cmdmsh: ;
+        sh:select """
+            SELECT $this ?value WHERE {
+              $this cmdm:volume ?v ; cmdm:surfaceArea ?value .
+              FILTER ( (?value * ?value * ?value) < 113.0973 * ?v * ?v * 0.999 )
+            }""" ] .
+
+# 볼트 규격: 아이템 코드와 품명의 나사 호칭 일치 (예: 코드 M5X20, 품명 M5X16 → 경고)
+cmdmsh:FastenerSizeShape a sh:NodeShape ;
+    sh:severity sh:Warning ;
+    sh:targetClass cmdm:Fastener ;
+    sh:sparql [
+        sh:message "아이템 코드의 나사 규격과 품명/규격 속성이 다릅니다." ;
+        sh:prefixes cmdmsh: ;
+        sh:select """
+            SELECT $this ?value WHERE {
+              $this cmdm:itemCode ?code ; cmdm:partName ?value .
+              FILTER ( regex(?code, "M[0-9]+X[0-9]+") && regex(?value, "M[0-9]+X[0-9]+") )
+              BIND ( replace(?code, "^.*(M[0-9]+X[0-9]+).*$", "$1") AS ?a )
+              BIND ( replace(?value, "^.*?(M[0-9]+X[0-9]+).*$", "$1") AS ?b )
+              FILTER ( ?a != ?b )
+            }""" ] .
+
+# ---------------- M1/M4 모델·사양 ----------------
+cmdmsh:RobotModelShape a sh:NodeShape ;
+    sh:targetClass cmdm:RobotModel ;
+    sh:property [ sh:path cmdm:hasJoint ; sh:minCount 6 ; sh:maxCount 6 ; sh:class cmdm:Joint ;
+                  sh:message "6축 로봇 모델은 관절 6개를 가져야 합니다." ] ;
+    sh:property [ sh:path cmdm:hasSpecification ; sh:minCount 1 ] ;
+    sh:property [ sh:path ( cmdm:hasSpecification cmdm:payload ) ; sh:minCount 1 ; sh:minExclusive 0 ] ;
+    sh:property [ sh:path ( cmdm:hasSpecification cmdm:reach ) ; sh:minCount 1 ; sh:minExclusive 0 ] ;
+    sh:property [ sh:path cmdm:usesControllerModel ; sh:minCount 1 ; sh:maxCount 1 ] .
+
+cmdmsh:JointShape a sh:NodeShape ;
+    sh:targetClass cmdm:Joint ;
+    sh:property [ sh:path cmdm:jointIndex ; sh:minCount 1 ; sh:maxCount 1 ; sh:minInclusive 1 ; sh:maxInclusive 6 ] ;
+    sh:property [ sh:path cmdm:minAngle ; sh:maxCount 1 ; sh:lessThan cmdm:maxAngle ;
+                  sh:message "관절 최소 각도는 최대 각도보다 작아야 합니다." ] ;
+    sh:or ( [ sh:path cmdm:continuousRotation ; sh:hasValue true ]
+            [ sh:and ( [ sh:path cmdm:minAngle ; sh:minCount 1 ] [ sh:path cmdm:maxAngle ; sh:minCount 1 ] ) ] ) .
+
+cmdmsh:TechnicalSpecificationShape a sh:NodeShape ;
+    sh:targetClass cmdm:TechnicalSpecification ;
+    sh:property [ sh:path cmdm:sourceDocument ; sh:minCount 1 ; sh:message "사양에는 출처 문서가 필요합니다." ] .
+
+# ---------------- M1 실물 자산 ----------------
+cmdmsh:PhysicalAssetShape a sh:NodeShape ;
+    sh:targetClass cmdm:PhysicalAsset ;
+    sh:property [ sh:path cmdm:serialNumber ; sh:minCount 1 ; sh:maxCount 1 ] .
+
+cmdmsh:RobotSystemShape a sh:NodeShape ;
+    sh:targetClass cmdm:RobotSystem ;
+    sh:property [ sh:path cmdm:hasArm ; sh:minCount 1 ; sh:maxCount 1 ] ;
+    sh:property [ sh:path cmdm:hasController ; sh:minCount 1 ; sh:maxCount 1 ] ;
+    sh:sparql [
+        sh:message "V15: 컨트롤러와 로봇 암의 보정 데이터 페어링이 필요합니다 (에러 E-7712)." ;
+        sh:prefixes cmdmsh: ;
+        sh:select """
+            SELECT $this WHERE {
+              $this cmdm:hasArm ?arm ; cmdm:hasController ?ctl .
+              ?arm cmdm:instanceOfModel/cmdm:code "V15" .
+              FILTER NOT EXISTS { ?arm cmdm:pairedWith ?ctl }
+            }""" ] ;
+    sh:sparql [
+        sh:message "로봇 모델이 지원하지 않는 설치 유형입니다(예: V15는 바닥·천장만 가능)." ;
+        sh:prefixes cmdmsh: ;
+        sh:select """
+            SELECT $this ?value WHERE {
+              $this cmdm:hasArm/cmdm:instanceOfModel ?m ; cmdm:hasMountingType ?value .
+              FILTER NOT EXISTS { ?m cmdm:supportedMounting ?value }
+            }""" ] ;
+    sh:sparql [
+        sh:message "컨트롤러 모델이 로봇 모델의 지정 컨트롤러와 다릅니다." ;
+        sh:prefixes cmdmsh: ;
+        sh:select """
+            SELECT $this ?value WHERE {
+              $this cmdm:hasArm/cmdm:instanceOfModel ?m ; cmdm:hasController/cmdm:instanceOfModel ?value .
+              FILTER NOT EXISTS { ?m cmdm:usesControllerModel ?value }
+            }""" ] .
+
+# ---------------- M5 Modbus ----------------
+cmdmsh:ModbusDeviceShape a sh:NodeShape ;
+    sh:targetClass cmdm:ModbusDevice ;
+    sh:property [ sh:path cmdm:ipAddress ; sh:minCount 1 ; sh:pattern "^([0-9]{1,3}\\.){3}[0-9]{1,3}$" ] ;
+    sh:property [ sh:path cmdm:slaveId ; sh:minCount 1 ; sh:minInclusive 0 ; sh:maxInclusive 255 ] ;
+    sh:property [ sh:path cmdm:description ; sh:maxLength 25 ] .
+
+cmdmsh:ModbusSignalShape a sh:NodeShape ;
+    sh:targetClass cmdm:ModbusSignal ;
+    sh:property [ sh:path cmdm:modbusSignalType ; sh:minCount 1 ; sh:in ( "DigitalInput" "DigitalOutput" "RegisterInput" "RegisterOutput" ) ] ;
+    sh:property [ sh:path cmdm:updateRate ; sh:in ( 0.0 5.0 10.0 25.0 50.0 125.0 ) ;
+                  sh:message "업데이트 주기는 0, 5, 10, 25, 50, 125 Hz 중 하나여야 합니다." ] .
+
+cmdmsh:IOChannelShape a sh:NodeShape ;
+    sh:targetClass cmdm:IOChannel ;
+    sh:property [ sh:path cmdm:name ; sh:maxLength 20 ; sh:pattern "^[A-Za-z0-9가-힣_ ]*$" ;
+                  sh:message "I/O 이름은 20자 이내, 특수문자 불가." ] .
+
+# ---------------- M6 안전 ----------------
+cmdmsh:SafetyConfigurationShape a sh:NodeShape ;
+    sh:targetClass cmdm:SafetyConfiguration ;
+    sh:property [ sh:path cmdm:crc ; sh:minCount 1 ; sh:maxCount 1 ; sh:message "적용된 안전 설정에는 CRC 값이 기록되어야 합니다." ] ;
+    sh:property [ sh:path cmdm:appliedAt ; sh:minCount 1 ] .
+
+cmdmsh:JointLimitSettingShape a sh:NodeShape ;
+    sh:targetClass cmdm:JointLimitSetting ;
+    sh:property [ sh:path cmdm:limitsJoint ; sh:minCount 1 ; sh:maxCount 1 ] ;
+    sh:sparql [
+        sh:message "사용자 관절 제한이 하드웨어 구동범위를 벗어납니다." ;
+        sh:prefixes cmdmsh: ;
+        sh:select """
+            SELECT $this WHERE {
+              $this cmdm:limitsJoint ?j .
+              ?j cmdm:minAngle ?hwMin ; cmdm:maxAngle ?hwMax .
+              OPTIONAL { $this cmdm:minAngle ?lo } OPTIONAL { $this cmdm:maxAngle ?hi }
+              FILTER ( (bound(?lo) && ?lo < ?hwMin) || (bound(?hi) && ?hi > ?hwMax) )
+            }""" ] .
+
+cmdmsh:ToolBoundaryShape a sh:NodeShape ;
+    sh:targetClass cmdm:ToolBoundary ;
+    sh:property [ sh:path cmdm:boundaryShape ; sh:minCount 1 ; sh:maxCount 1 ] ;
+    sh:property [ sh:path cmdm:boundaryForTCP ; sh:minCount 1 ; sh:message "툴 경계는 등록된 TCP에 대해서만 설정할 수 있습니다." ] .
+
+# ---------------- M7 SW 설정 ----------------
+cmdmsh:TCPProfileShape a sh:NodeShape ;
+    sh:targetClass cmdm:TCPProfile ;
+    sh:property [ sh:path cmdm:name ; sh:minCount 1 ; sh:maxLength 32 ; sh:pattern "^[A-Za-z0-9가-힣_\\-]+$" ;
+                  sh:message "TCP 이름은 32자 이내, '-'와 '_' 외 특수문자 불가." ] ;
+    sh:property [ sh:path cmdm:toolMass ; sh:minCount 1 ; sh:minInclusive 0 ; sh:message "페이로드(툴 무게)는 필수입니다." ] ;
+    sh:property [ sh:path cmdm:cogX ; sh:minInclusive -500 ; sh:maxInclusive 500 ] ;
+    sh:property [ sh:path cmdm:cogY ; sh:minInclusive -500 ; sh:maxInclusive 500 ] ;
+    sh:property [ sh:path cmdm:cogZ ; sh:minInclusive -500 ; sh:maxInclusive 500 ] ;
+    sh:sparql [
+        sh:message "TCP 페이로드가 로봇 모델 가반 중량을 초과합니다." ;
+        sh:prefixes cmdmsh: ;
+        sh:select """
+            SELECT $this ?value WHERE {
+              ?sys cmdm:hasTCPProfile $this ; cmdm:hasArm/cmdm:instanceOfModel/cmdm:hasSpecification/cmdm:payload ?max .
+              $this cmdm:toolMass ?value .
+              FILTER ( ?value > ?max )
+            }""" ] .
+
+cmdmsh:VariableShape a sh:NodeShape ;
+    sh:targetClass cmdm:Variable ;
+    sh:property [ sh:path cmdm:name ; sh:minCount 1 ; sh:maxLength 40 ] ;
+    sh:property [ sh:path cmdm:variableType ; sh:minCount 1 ; sh:maxCount 1 ] .
+
+cmdmsh:LinearMoveShape a sh:NodeShape ;
+    sh:targetClass cmdm:LinearMove ;
+    sh:property [ sh:path cmdm:speed ; sh:minInclusive 1 ; sh:maxInclusive 1200 ; sh:message "Linear 속도 범위 1~1200 mm/s" ] ;
+    sh:property [ sh:path cmdm:acceleration ; sh:minInclusive 1 ; sh:maxInclusive 3000 ] .
+cmdmsh:JointMoveShape a sh:NodeShape ;
+    sh:targetClass cmdm:JointMove ;
+    sh:property [ sh:path cmdm:speed ; sh:minInclusive 1 ; sh:maxInclusive 150 ; sh:message "Joint 속도 범위 1~150 °/s" ] ;
+    sh:property [ sh:path cmdm:acceleration ; sh:minInclusive 1 ; sh:maxInclusive 300 ] .
+cmdmsh:ArcCircleMoveShape a sh:NodeShape ;
+    sh:targetClass cmdm:ArcMove , cmdm:CircleMove ;
+    sh:property [ sh:path cmdm:speed ; sh:minInclusive 1 ; sh:maxInclusive 800 ] ;
+    sh:property [ sh:path cmdm:acceleration ; sh:minInclusive 1 ; sh:maxInclusive 2000 ] ;
+    sh:property [ sh:path cmdm:repeatCount ; sh:minInclusive 1 ; sh:maxInclusive 20 ] .
+
+cmdmsh:ThreadProgramShape a sh:NodeShape ;
+    sh:targetClass cmdm:ThreadProgram ;
+    sh:sparql [
+        sh:message "쓰레드 프로그램에는 Move 명령을 사용할 수 없습니다." ;
+        sh:prefixes cmdmsh: ;
+        sh:select """
+            SELECT $this ?value WHERE { $this cmdm:hasCommand+ ?value . ?value a/rdfs:subClassOf* cmdm:MoveCommand . }""" ] .
+
+cmdmsh:UserAccountShape a sh:NodeShape ;
+    sh:targetClass cmdm:UserAccount ;
+    sh:property [ sh:path cmdm:loginId ; sh:minCount 1 ; sh:maxLength 20 ] ;
+    sh:property [ sh:path cmdm:hasRole ; sh:minCount 1 ; sh:maxCount 1 ] .
+
+# ---------------- M8 운영 ----------------
+cmdmsh:EventShape a sh:NodeShape ;
+    sh:targetClass cmdm:Event ;
+    sh:property [ sh:path cmdm:occurredAt ; sh:minCount 1 ; sh:maxCount 1 ; sh:datatype xsd:dateTime ] ;
+    sh:property [ sh:path cmdm:eventAsset ; sh:minCount 1 ] .
+
+cmdmsh:ObservationShape a sh:NodeShape ;
+    sh:targetClass cmdm:Observation ;
+    sh:property [ sh:path cmdm:observedAt ; sh:minCount 1 ; sh:datatype xsd:dateTime ] ;
+    sh:property [ sh:path cmdm:observedAsset ; sh:minCount 1 ] .
+
+cmdmsh:MaintenancePlanShape a sh:NodeShape ;
+    sh:targetClass cmdm:MaintenancePlanItem ;
+    sh:property [ sh:path cmdm:interval ; sh:minCount 1 ; sh:datatype xsd:duration ] ;
+    sh:property [ sh:path cmdm:inspects ; sh:minCount 1 ] .

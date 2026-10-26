@@ -1,0 +1,633 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CMDM 검증 규칙 1.0.0</title>
+<meta name="description" content="CMDM 사양 데이터 입력 게이트용 SHACL 규칙">
+<link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+KR:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="alternate" type="text/turtle" href="cmdm-shapes.ttl" title="CMDM SHACL (Turtle)">
+</head>
+<body>
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="../../"><span class="brand-mark" aria-hidden="true"></span>CMDM</a>
+    <nav class="topnav" aria-label="사이트"><a href="../../">개요</a><a href="../../ontology/">스키마</a><a href="../../shapes/" aria-current="page">검증 규칙</a><a href="https://github.com/HanhwaAcademy-Team-One/cmdm" rel="noopener">GitHub</a></nav>
+  </div>
+</header>
+<main class="wrap layout">
+<aside class="sidebar" aria-label="규칙 묶음">
+  <div class="search">
+  <label class="sr-only" for="q">검색</label>
+  <input id="q" type="search" placeholder="규칙·메시지 검색  ( / )" autocomplete="off" spellcheck="false">
+  <p class="search-count" aria-live="polite"></p>
+</div>
+  <ul class="toc"><li><a href="#sec-M2-설계-BOM">M2 설계 BOM <span class="n">6</span></a></li><li><a href="#sec-M1-M4-모델-사양">M1/M4 모델·사양 <span class="n">3</span></a></li><li><a href="#sec-M1-실물-자산">M1 실물 자산 <span class="n">2</span></a></li><li><a href="#sec-M5-Modbus">M5 Modbus <span class="n">3</span></a></li><li><a href="#sec-M6-안전">M6 안전 <span class="n">3</span></a></li><li><a href="#sec-M7-SW-설정">M7 SW 설정 <span class="n">7</span></a></li><li><a href="#sec-M8-운영">M8 운영 <span class="n">3</span></a></li></ul>
+</aside>
+<div class="content">
+  <p class="banner">이 페이지는 <strong>1.0.0</strong> 고정본입니다. 최신 규칙은 <a href="../../shapes/">검증 규칙</a>에서 볼 수 있습니다.</p>
+  <section class="hero hero-doc">
+    <p class="eyebrow">SHACL · v1.0.0</p>
+    <h1>검증 규칙</h1>
+    <p class="lead">사양서를 그래프에 적재하기 전에 통과해야 하는 입력 게이트입니다. <strong>위반</strong>은 저장을 막고, <strong>경고</strong>는 정제 대상으로 기록합니다. 기준값은 가상 제품군 VORLA 시리즈의 사양을 따릅니다.</p>
+    <dl class="meta">
+      <dt>규칙 IRI</dt><dd><code>https://hanhwaacademy-team-one.github.io/cmdm/shapes#</code></dd>
+      <dt>접두어</dt><dd><code>@prefix cmdmsh: &lt;https://hanhwaacademy-team-one.github.io/cmdm/shapes#&gt; .</code></dd>
+      <dt>버전</dt><dd><a href="../../shapes/1.0.0/">1.0.0</a></dd>
+    </dl>
+    <div class="actions">
+      <a class="btn primary" href="cmdm-shapes.ttl" download>Turtle 내려받기</a>
+      <a class="btn" href="../../ontology/">스키마 문서</a>
+    </div>
+    <ul class="stats">
+      <li><strong>27</strong>노드 셰이프</li>
+      <li><strong>59</strong>위반 규칙</li>
+      <li><strong>5</strong>경고 규칙</li>
+    </ul>
+  </section>
+  <section class="module" id="sec-M2-설계-BOM"><h2>M2 설계 BOM</h2><article class="term shape" id="ItemDefinitionShape" data-search="itemdefinitionshape cmdm:itemdefinition 아이템 코드는 정확히 1개여야 합니다. 아이템은 정의 cad 파일을 가져야 합니다. 도면번호 형식은 dw-21-004213b 형태여야 합니다. plm 품번이 없습니다.">
+  <header class="term-head">
+    <h4><a class="anchor" href="#ItemDefinitionShape">cmdmsh:ItemDefinitionShape</a></h4>
+    <span class="badge b-shape">NodeShape</span>
+  </header>
+  <p class="target">대상 클래스 <a class="ref" href="../../ontology/#ItemDefinition"><code>cmdm:ItemDefinition</code></a></p>
+  <table class="rules">
+<thead><tr><th>경로</th><th>조건</th><th>수준</th><th>메시지</th></tr></thead>
+<tbody><tr>
+  <td data-label="경로"><a class="ref" href="../../ontology/#itemCode"><code>cmdm:itemCode</code></a></td>
+  <td data-label="조건">최소 1개 · 최대 1개 · 형식 <code title="http://www.w3.org/2001/XMLSchema#string">xsd:string</code></td>
+  <td data-label="수준"><span class="sev sev-violation">위반</span></td>
+  <td data-label="메시지">아이템 코드는 정확히 1개여야 합니다.</td>
+</tr><tr>
+  <td data-label="경로"><a class="ref" href="../../ontology/#definedInFile"><code>cmdm:definedInFile</code></a></td>
+  <td data-label="조건">최소 1개 · 클래스 <a class="ref" href="../../ontology/#CADModelFile"><code>cmdm:CADModelFile</code></a></td>
+  <td data-label="수준"><span class="sev sev-violation">위반</span></td>
+  <td data-label="메시지">아이템은 정의 CAD 파일을 가져야 합니다.</td>
+</tr><tr>
+  <td data-label="경로"><a class="ref" href="../../ontology/#drawingNumber"><code>cmdm:drawingNumber</code></a></td>
+  <td data-label="조건">패턴 <code>^DW-[0-9]{2}-[0-9]{6}[A-Z]?$</code></td>
+  <td data-label="수준"><span class="sev sev-warning">경고</span></td>
+  <td data-label="메시지">도면번호 형식은 DW-21-004213B 형태여야 합니다.</td>
+</tr><tr>
+  <td data-label="경로"><a class="ref" href="../../ontology/#volume"><code>cmdm:volume</code></a></td>
+  <td data-label="조건">최대 1개 · 값 > 0</td>
+  <td data-label="수준"><span class="sev sev-violation">위반</span></td>
+  <td data-label="메시지"></td>
+</tr><tr>
+  <td data-label="경로"><a class="ref" href="../../ontology/#partNumber"><code>cmdm:partNumber</code></a></td>
+  <td data-label="조건">최소 1개</td>
+  <td data-label="수준"><span class="sev sev-warning">경고</span></td>
+  <td data-label="메시지">PLM 품번이 없습니다.</td>
+</tr></tbody></table>
+</article><article class="term shape" id="PartMaterialShape" data-search="partmaterialshape cmdm:partdefinition 부품 재질이 지정되지 않았습니다.">
+  <header class="term-head">
+    <h4><a class="anchor" href="#PartMaterialShape">cmdmsh:PartMaterialShape</a></h4>
+    <span class="badge b-shape">NodeShape</span>
+  </header>
+  <p class="target">대상 클래스 <a class="ref" href="../../ontology/#PartDefinition"><code>cmdm:PartDefinition</code></a></p>
+  <table class="rules">
+<thead><tr><th>경로</th><th>조건</th><th>수준</th><th>메시지</th></tr></thead>
+<tbody><tr>
+  <td data-label="경로"><a class="ref" href="../../ontology/#madeOf"><code>cmdm:madeOf</code></a></td>
+  <td data-label="조건">최소 1개 · 최대 1개 · 클래스 <a class="ref" href="../../ontology/#Material"><code>cmdm:Material</code></a></td>
+  <td data-label="수준"><span class="sev sev-warning">경고</span></td>
+  <td data-label="메시지">부품 재질이 지정되지 않았습니다.</td>
+</tr></tbody></table>
+</article><article class="term shape" id="AssemblyShape" data-search="assemblyshape cmdm:assemblydefinition 조립품은 bom 라인이 1개 이상 필요합니다.">
+  <header class="term-head">
+    <h4><a class="anchor" href="#AssemblyShape">cmdmsh:AssemblyShape</a></h4>
+    <span class="badge b-shape">NodeShape</span>
+  </header>
+  <p class="target">대상 클래스 <a class="ref" href="../../ontology/#AssemblyDefinition"><code>cmdm:AssemblyDefinition</code></a></p>
+  <table class="rules">
+<thead><tr><th>경로</th><th>조건</th><th>수준</th><th>메시지</th></tr></thead>
+<tbody><tr>
+  <td data-label="경로"><a class="ref" href="../../ontology/#hasBOMLine"><code>cmdm:hasBOMLine</code></a></td>
+  <td data-label="조건">최소 1개</td>
+  <td data-label="수준"><span class="sev sev-violation">위반</span></td>
+  <td data-label="메시지">조립품은 BOM 라인이 1개 이상 필요합니다.</td>
+</tr></tbody></table>
+</article><article class="term shape" id="BOMLineShape" data-search="bomlineshape cmdm:bomline bom 순환 참조: 하위 아이템이 상위 아이템을 포함합니다.">
+  <header class="term-head">
+    <h4><a class="anchor" href="#BOMLineShape">cmdmsh:BOMLineShape</a></h4>
+    <span class="badge b-shape">NodeShape</span>
+  </header>
+  <p class="target">대상 클래스 <a class="ref" href="../../ontology/#BOMLine"><code>cmdm:BOMLine</code></a></p>
+  <table class="rules">
+<thead><tr><th>경로</th><th>조건</th><th>수준</th><th>메시지</th></tr></thead>
+<tbody><tr>
+  <td data-label="경로"><a class="ref" href="../../ontology/#bomParent"><code>cmdm:bomParent</code></a></td>
+  <td data-label="조건">최소 1개 · 최대 1개 · 클래스 <a class="ref" href="../../ontology/#AssemblyDefinition"><code>cmdm:AssemblyDefinition</code></a></td>
+  <td data-label="수준"><span class="sev sev-violation">위반</span></td>
+  <td data-label="메시지"></td>
+</tr><tr>
+  <td data-label="경로"><a class="ref" href="../../ontology/#bomChild"><code>cmdm:bomChild</code></a></td>
+  <td data-label="조건">최소 1개 · 최대 1개 · 클래스 <a class="ref" href="../../ontology/#ItemDefinition"><code>cmdm:ItemDefinition</code></a></td>
+  <td data-label="수준"><span class="sev sev-violation">위반</span></td>
+  <td data-label="메시지"></td>
+</tr><tr>
+  <td data-label="경로"><a class="ref" href="../../ontology/#quantity"><code>cmdm:quantity</code></a></td>
+  <td data-label="조건">최소 1개 · 최대 1개 · 형식 <code title="http://www.w3.org/2001/XMLSchema#positiveInteger">xsd:positiveInteger</code></td>
+  <td data-label="수준"><span class="sev sev-violation">위반</span></td>
+  <td data-label="메시지"></td>
+</tr></tbody></table><div class="sparql">
+  <p><span class="sev sev-violation">위반</span> BOM 순환 참조: 하위 아이템이 상위 아이템을 포함합니다.</p>
+  <details><summary>SPARQL 보기</summary><pre><code>SELECT $this WHERE {
+  $this cmdm:bomParent ?p ; cmdm:bomChild ?c .
+  ?c (cmdm:hasBOMLine/cmdm:bomChild)* ?p .
+}</code></pre></details>
+</div>
+</article><article class="term shape" id="MassPropertyShape" data-search="masspropertyshape cmdm:partdefinition 표면적이 부피 대비 물리적으로 불가능하게 작습니다(질량 특성 재계산 필요).">
+  <header class="term-head">
+    <h4><a class="anchor" href="#MassPropertyShape">cmdmsh:MassPropertyShape</a></h4>
+    <span class="badge b-shape">NodeShape</span>
+  </header>
+  <p class="target">대상 클래스 <a class="ref" href="../../ontology/#PartDefinition"><code>cmdm:PartDefinition</code></a></p>
+  <div class="sparql">
+  <p><span class="sev sev-warning">경고</span> 표면적이 부피 대비 물리적으로 불가능하게 작습니다(질량 특성 재계산 필요).</p>
+  <details><summary>SPARQL 보기</summary><pre><code>SELECT $this ?value WHERE {
+  $this cmdm:volume ?v ; cmdm:surfaceArea ?value .
+  FILTER ( (?value * ?value * ?value) &lt; 113.0973 * ?v * ?v * 0.999 )
+}</code></pre></details>
+</div>
+</article><article class="term shape" id="FastenerSizeShape" data-search="fastenersizeshape cmdm:fastener 아이템 코드의 나사 규격과 품명/규격 속성이 다릅니다.">
+  <header class="term-head">
+    <h4><a class="anchor" href="#FastenerSizeShape">cmdmsh:FastenerSizeShape</a></h4>
+    <span class="badge b-shape">NodeShape</span>
+  </header>
+  <p class="target">대상 클래스 <a class="ref" href="../../ontology/#Fastener"><code>cmdm:Fastener</code></a></p>
+  <div class="sparql">
+  <p><span class="sev sev-warning">경고</span> 아이템 코드의 나사 규격과 품명/규격 속성이 다릅니다.</p>
+  <details><summary>SPARQL 보기</summary><pre><code>SELECT $this ?value WHERE {
+  $this cmdm:itemCode ?code ; cmdm:partName ?value .
+  FILTER ( regex(?code, &quot;M[0-9]+X[0-9]+&quot;) &amp;&amp; regex(?value, &quot;M[0-9]+X[0-9]+&quot;) )
+  BIND ( replace(?code, &quot;^.*(M[0-9]+X[0-9]+).*$&quot;, &quot;$1&quot;) AS ?a )
+  BIND ( replace(?value, &quot;^.*?(M[0-9]+X[0-9]+).*$&quot;, &quot;$1&quot;) AS ?b )
+  FILTER ( ?a != ?b )
+}</code></pre></details>
+</div>
+</article></section><section class="module" id="sec-M1-M4-모델-사양"><h2>M1/M4 모델·사양</h2><article class="term shape" id="RobotModelShape" data-search="robotmodelshape cmdm:robotmodel 6축 로봇 모델은 관절 6개를 가져야 합니다.">
+  <header class="term-head">
+    <h4><a class="anchor" href="#RobotModelShape">cmdmsh:RobotModelShape</a></h4>
+    <span class="badge b-shape">NodeShape</span>
+  </header>
+  <p class="target">대상 클래스 <a class="ref" href="../../ontology/#RobotModel"><code>cmdm:RobotModel</code></a></p>
+  <table class="rules">
+<thead><tr><th>경로</th><th>조건</th><th>수준</th><th>메시지</th></tr></thead>
+<tbody><tr>
+  <td data-label="경로"><a class="ref" href="../../ontology/#hasJoint"><code>cmdm:hasJoint</code></a></td>
+  <td data-label="조건">최소 6개 · 최대 6개 · 클래스 <a class="ref" href="../../ontology/#Joint"><code>cmdm:Joint</code></a></td>
+  <td data-label="수준"><span class="sev sev-violation">위반</span></td>
+  <td data-label="메시지">6축 로봇 모델은 관절 6개를 가져야 합니다.</td>
+</tr><tr>
+  <td data-label="경로"><a class="ref" href="../../ontology/#hasSpecification"><code>cmdm:hasSpecification</code></a></td>
+  <td data-label="조건">최소 1개</td>
+  <td data-label="수준"><span class="sev sev-violation">위반</span></td>
+  <td data-label="메시지"></td>
+</tr><tr>
+  <td data-label="경로"><a class="ref" href="../../ontology/#hasSpecification"><code>cmdm:hasSpecification</code></a> <span class="arrow">/</span> <a class="ref" href="../../ontology/#payload"><code>cmdm:payload</code></a></td>
+  <td data-label="조건">최소 1개 · 값 > 0</td>
+  <td data-label="수준"><span class="sev sev-violation">위반</span></td>
+  <td data-label="메시지"></td>
+</tr><tr>
+  <td data-label="경로"><a class="ref" href="../../ontology/#hasSpecification"><code>cmdm:hasSpecification</code></a> <span class="arrow">/</span> <a class="ref" href="../../ontology/#reach"><code>cmdm:reach</code></a></td>
+  <td data-label="조건">최소 1개 · 값 > 0</td>
+  <td data-label="수준"><span class="sev sev-violation">위반</span></td>
+  <td data-label="메시지"></td>
+</tr><tr>
+  <td data-label="경로"><a class="ref" href="../../ontology/#usesControllerModel"><code>cmdm:usesControllerModel</code></a></td>
+  <td data-label="조건">최소 1개 · 최대 1개</td>
+  <td data-label="수준"><span class="sev sev-violation">위반</span></td>
+  <td data-label="메시지"></td>
+</tr></tbody></table>
+</article><article class="term shape" id="JointShape" data-search="jointshape cmdm:joint 관절 최소 각도는 최대 각도보다 작아야 합니다.">
+  <header class="term-head">
+    <h4><a class="anchor" href="#JointShape">cmdmsh:JointShape</a></h4>
+    <span class="badge b-shape">NodeShape</span>
+  </header>
+  <p class="target">대상 클래스 <a class="ref" href="../../ontology/#Joint"><code>cmdm:Joint</code></a></p>
+  <table class="rules">
+<thead><tr><th>경로</th><th>조건</th><th>수준</th><th>메시지</th></tr></thead>
+<tbody><tr>
+  <td data-label="경로"><a class="ref" href="../../ontology/#jointIndex"><code>cmdm:jointIndex</code></a></td>
+  <td data-label="조건">최소 1개 · 최대 1개 · 값 ≥ 1 · 값 ≤ 6</td>
+  <td data-label="수준"><span class="sev sev-violation">위반</span></td>
+  <td data-label="메시지"></td>
+</tr><tr>
+  <td data-label="경로"><a class="ref" href="../../ontology/#minAngle"><code>cmdm:minAngle</code></a></td>
+  <td data-label="조건">최대 1개 · &lt; <a class="ref" href="../../ontology/#maxAngle"><code>cmdm:maxAngle</code></a></td>
+  <td data-label="수준"><span class="sev sev-violation">위반</span></td>
+  <td data-label="메시지">관절 최소 각도는 최대 각도보다 작아야 합니다.</td>
+</tr><tr>
+  <td data-label="경로"><span class="muted">(노드)</span></td>
+  <td data-label="조건">다음 중 하나: (<a class="ref" href="../../ontology/#continuousRotation"><code>cmdm:continuousRotation</code></a> 값 = <code>true</code>) 또는 (모두: (<a class="ref" href="../../ontology/#minAngle"><code>cmdm:minAngle</code></a> 최소 1개) 그리고 (<a class="ref" href="../../ontology/#maxAngle"><code>cmdm:maxAngle</code></a> 최소 1개))</td>
+  <td data-label="수준"><span class="sev sev-violation">위반</span></td>
+  <td data-label="메시지"></td>
+</tr></tbody></table>
+</article><article class="term shape" id="TechnicalSpecificationShape" data-search="technicalspecificationshape cmdm:technicalspecification 사양에는 출처 문서가 필요합니다.">
+  <header class="term-head">
+    <h4><a class="anchor" href="#TechnicalSpecificationShape">cmdmsh:TechnicalSpecificationShape</a></h4>
+    <span class="badge b-shape">NodeShape</span>
+  </header>
+  <p class="target">대상 클래스 <a class="ref" href="../../ontology/#TechnicalSpecification"><code>cmdm:TechnicalSpecification</code></a></p>
+  <table class="rules">
+<thead><tr><th>경로</th><th>조건</th><th>수준</th><th>메시지</th></tr></thead>
+<tbody><tr>
+  <td data-label="경로"><a class="ref" href="../../ontology/#sourceDocument"><code>cmdm:sourceDocument</code></a></td>
+  <td data-label="조건">최소 1개</td>
+  <td data-label="수준"><span class="sev sev-violation">위반</span></td>
+  <td data-label="메시지">사양에는 출처 문서가 필요합니다.</td>
+</tr></tbody></table>
+</article></section><section class="module" id="sec-M1-실물-자산"><h2>M1 실물 자산</h2><article class="term shape" id="PhysicalAssetShape" data-search="physicalassetshape cmdm:physicalasset ">
+  <header class="term-head">
+    <h4><a class="anchor" href="#PhysicalAssetShape">cmdmsh:PhysicalAssetShape</a></h4>
+    <span class="badge b-shape">NodeShape</span>
+  </header>
+  <p class="target">대상 클래스 <a class="ref" href="../../ontology/#PhysicalAsset"><code>cmdm:PhysicalAsset</code></a></p>
+  <table class="rules">
+<thead><tr><th>경로</th><th>조건</th><th>수준</th><th>메시지</th></tr></thead>
+<tbody><tr>
+  <td data-label="경로"><a class="ref" href="../../ontology/#serialNumber"><code>cmdm:serialNumber</code></a></td>
+  <td data-label="조건">최소 1개 · 최대 1개</td>
+  <td data-label="수준"><span class="sev sev-violation">위반</span></td>
+  <td data-label="메시지"></td>
+</tr></tbody></table>
+</article><article class="term shape" id="RobotSystemShape" data-search="robotsystemshape cmdm:robotsystem v15: 컨트롤러와 로봇 암의 보정 데이터 페어링이 필요합니다 (에러 e-7712). 로봇 모델이 지원하지 않는 설치 유형입니다(예: v15는 바닥·천장만 가능). 컨트롤러 모델이 로봇 모델의 지정 컨트롤러와 다릅니다.">
+  <header class="term-head">
+    <h4><a class="anchor" href="#RobotSystemShape">cmdmsh:RobotSystemShape</a></h4>
+    <span class="badge b-shape">NodeShape</span>
+  </header>
+  <p class="target">대상 클래스 <a class="ref" href="../../ontology/#RobotSystem"><code>cmdm:RobotSystem</code></a></p>
+  <table class="rules">
+<thead><tr><th>경로</th><th>조건</th><th>수준</th><th>메시지</th></tr></thead>
+<tbody><tr>
+  <td data-label="경로"><a class="ref" href="../../ontology/#hasArm"><code>cmdm:hasArm</code></a></td>
+  <td data-label="조건">최소 1개 · 최대 1개</td>
+  <td data-label="수준"><span class="sev sev-violation">위반</span></td>
+  <td data-label="메시지"></td>
+</tr><tr>
+  <td data-label="경로"><a class="ref" href="../../ontology/#hasController"><code>cmdm:hasController</code></a></td>
+  <td data-label="조건">최소 1개 · 최대 1개</td>
+  <td data-label="수준"><span class="sev sev-violation">위반</span></td>
+  <td data-label="메시지"></td>
+</tr></tbody></table><div class="sparql">
+  <p><span class="sev sev-violation">위반</span> V15: 컨트롤러와 로봇 암의 보정 데이터 페어링이 필요합니다 (에러 E-7712).</p>
+  <details><summary>SPARQL 보기</summary><pre><code>SELECT $this WHERE {
+  $this cmdm:hasArm ?arm ; cmdm:hasController ?ctl .
+  ?arm cmdm:instanceOfModel/cmdm:code &quot;V15&quot; .
+  FILTER NOT EXISTS { ?arm cmdm:pairedWith ?ctl }
+}</code></pre></details>
+</div><div class="sparql">
+  <p><span class="sev sev-violation">위반</span> 로봇 모델이 지원하지 않는 설치 유형입니다(예: V15는 바닥·천장만 가능).</p>
+  <details><summary>SPARQL 보기</summary><pre><code>SELECT $this ?value WHERE {
+  $this cmdm:hasArm/cmdm:instanceOfModel ?m ; cmdm:hasMountingType ?value .
+  FILTER NOT EXISTS { ?m cmdm:supportedMounting ?value }
+}</code></pre></details>
+</div><div class="sparql">
+  <p><span class="sev sev-violation">위반</span> 컨트롤러 모델이 로봇 모델의 지정 컨트롤러와 다릅니다.</p>
+  <details><summary>SPARQL 보기</summary><pre><code>SELECT $this ?value WHERE {
+  $this cmdm:hasArm/cmdm:instanceOfModel ?m ; cmdm:hasController/cmdm:instanceOfModel ?value .
+  FILTER NOT EXISTS { ?m cmdm:usesControllerModel ?value }
+}</code></pre></details>
+</div>
+</article></section><section class="module" id="sec-M5-Modbus"><h2>M5 Modbus</h2><article class="term shape" id="ModbusDeviceShape" data-search="modbusdeviceshape cmdm:modbusdevice ">
+  <header class="term-head">
+    <h4><a class="anchor" href="#ModbusDeviceShape">cmdmsh:ModbusDeviceShape</a></h4>
+    <span class="badge b-shape">NodeShape</span>
+  </header>
+  <p class="target">대상 클래스 <a class="ref" href="../../ontology/#ModbusDevice"><code>cmdm:ModbusDevice</code></a></p>
+  <table class="rules">
+<thead><tr><th>경로</th><th>조건</th><th>수준</th><th>메시지</th></tr></thead>
+<tbody><tr>
+  <td data-label="경로"><a class="ref" href="../../ontology/#ipAddress"><code>cmdm:ipAddress</code></a></td>
+  <td data-label="조건">최소 1개 · 패턴 <code>^([0-9]{1,3}\.){3}[0-9]{1,3}$</code></td>
+  <td data-label="수준"><span class="sev sev-violation">위반</span></td>
+  <td data-label="메시지"></td>
+</tr><tr>
+  <td data-label="경로"><a class="ref" href="../../ontology/#slaveId"><code>cmdm:slaveId</code></a></td>
+  <td data-label="조건">최소 1개 · 값 ≥ 0 · 값 ≤ 255</td>
+  <td data-label="수준"><span class="sev sev-violation">위반</span></td>
+  <td data-label="메시지"></td>
+</tr><tr>
+  <td data-label="경로"><a class="ref" href="../../ontology/#description"><code>cmdm:description</code></a></td>
+  <td data-label="조건">길이 ≤ 25</td>
+  <td data-label="수준"><span class="sev sev-violation">위반</span></td>
+  <td data-label="메시지"></td>
+</tr></tbody></table>
+</article><article class="term shape" id="ModbusSignalShape" data-search="modbussignalshape cmdm:modbussignal 업데이트 주기는 0, 5, 10, 25, 50, 125 hz 중 하나여야 합니다.">
+  <header class="term-head">
+    <h4><a class="anchor" href="#ModbusSignalShape">cmdmsh:ModbusSignalShape</a></h4>
+    <span class="badge b-shape">NodeShape</span>
+  </header>
+  <p class="target">대상 클래스 <a class="ref" href="../../ontology/#ModbusSignal"><code>cmdm:ModbusSignal</code></a></p>
+  <table class="rules">
+<thead><tr><th>경로</th><th>조건</th><th>수준</th><th>메시지</th></tr></thead>
+<tbody><tr>
+  <td data-label="경로"><a class="ref" href="../../ontology/#modbusSignalType"><code>cmdm:modbusSignalType</code></a></td>
+  <td data-label="조건">최소 1개 · 허용값 { <code>DigitalInput</code>, <code>DigitalOutput</code>, <code>RegisterInput</code>, <code>RegisterOutput</code> }</td>
+  <td data-label="수준"><span class="sev sev-violation">위반</span></td>
+  <td data-label="메시지"></td>
+</tr><tr>
+  <td data-label="경로"><a class="ref" href="../../ontology/#updateRate"><code>cmdm:updateRate</code></a></td>
+  <td data-label="조건">허용값 { <code>0.0</code>, <code>5.0</code>, <code>10.0</code>, <code>25.0</code>, <code>50.0</code>, <code>125.0</code> }</td>
+  <td data-label="수준"><span class="sev sev-violation">위반</span></td>
+  <td data-label="메시지">업데이트 주기는 0, 5, 10, 25, 50, 125 Hz 중 하나여야 합니다.</td>
+</tr></tbody></table>
+</article><article class="term shape" id="IOChannelShape" data-search="iochannelshape cmdm:iochannel i/o 이름은 20자 이내, 특수문자 불가.">
+  <header class="term-head">
+    <h4><a class="anchor" href="#IOChannelShape">cmdmsh:IOChannelShape</a></h4>
+    <span class="badge b-shape">NodeShape</span>
+  </header>
+  <p class="target">대상 클래스 <a class="ref" href="../../ontology/#IOChannel"><code>cmdm:IOChannel</code></a></p>
+  <table class="rules">
+<thead><tr><th>경로</th><th>조건</th><th>수준</th><th>메시지</th></tr></thead>
+<tbody><tr>
+  <td data-label="경로"><a class="ref" href="../../ontology/#name"><code>cmdm:name</code></a></td>
+  <td data-label="조건">길이 ≤ 20 · 패턴 <code>^[A-Za-z0-9가-힣_ ]*$</code></td>
+  <td data-label="수준"><span class="sev sev-violation">위반</span></td>
+  <td data-label="메시지">I/O 이름은 20자 이내, 특수문자 불가.</td>
+</tr></tbody></table>
+</article></section><section class="module" id="sec-M6-안전"><h2>M6 안전</h2><article class="term shape" id="SafetyConfigurationShape" data-search="safetyconfigurationshape cmdm:safetyconfiguration 적용된 안전 설정에는 crc 값이 기록되어야 합니다.">
+  <header class="term-head">
+    <h4><a class="anchor" href="#SafetyConfigurationShape">cmdmsh:SafetyConfigurationShape</a></h4>
+    <span class="badge b-shape">NodeShape</span>
+  </header>
+  <p class="target">대상 클래스 <a class="ref" href="../../ontology/#SafetyConfiguration"><code>cmdm:SafetyConfiguration</code></a></p>
+  <table class="rules">
+<thead><tr><th>경로</th><th>조건</th><th>수준</th><th>메시지</th></tr></thead>
+<tbody><tr>
+  <td data-label="경로"><a class="ref" href="../../ontology/#crc"><code>cmdm:crc</code></a></td>
+  <td data-label="조건">최소 1개 · 최대 1개</td>
+  <td data-label="수준"><span class="sev sev-violation">위반</span></td>
+  <td data-label="메시지">적용된 안전 설정에는 CRC 값이 기록되어야 합니다.</td>
+</tr><tr>
+  <td data-label="경로"><a class="ref" href="../../ontology/#appliedAt"><code>cmdm:appliedAt</code></a></td>
+  <td data-label="조건">최소 1개</td>
+  <td data-label="수준"><span class="sev sev-violation">위반</span></td>
+  <td data-label="메시지"></td>
+</tr></tbody></table>
+</article><article class="term shape" id="JointLimitSettingShape" data-search="jointlimitsettingshape cmdm:jointlimitsetting 사용자 관절 제한이 하드웨어 구동범위를 벗어납니다.">
+  <header class="term-head">
+    <h4><a class="anchor" href="#JointLimitSettingShape">cmdmsh:JointLimitSettingShape</a></h4>
+    <span class="badge b-shape">NodeShape</span>
+  </header>
+  <p class="target">대상 클래스 <a class="ref" href="../../ontology/#JointLimitSetting"><code>cmdm:JointLimitSetting</code></a></p>
+  <table class="rules">
+<thead><tr><th>경로</th><th>조건</th><th>수준</th><th>메시지</th></tr></thead>
+<tbody><tr>
+  <td data-label="경로"><a class="ref" href="../../ontology/#limitsJoint"><code>cmdm:limitsJoint</code></a></td>
+  <td data-label="조건">최소 1개 · 최대 1개</td>
+  <td data-label="수준"><span class="sev sev-violation">위반</span></td>
+  <td data-label="메시지"></td>
+</tr></tbody></table><div class="sparql">
+  <p><span class="sev sev-violation">위반</span> 사용자 관절 제한이 하드웨어 구동범위를 벗어납니다.</p>
+  <details><summary>SPARQL 보기</summary><pre><code>SELECT $this WHERE {
+  $this cmdm:limitsJoint ?j .
+  ?j cmdm:minAngle ?hwMin ; cmdm:maxAngle ?hwMax .
+  OPTIONAL { $this cmdm:minAngle ?lo } OPTIONAL { $this cmdm:maxAngle ?hi }
+  FILTER ( (bound(?lo) &amp;&amp; ?lo &lt; ?hwMin) || (bound(?hi) &amp;&amp; ?hi &gt; ?hwMax) )
+}</code></pre></details>
+</div>
+</article><article class="term shape" id="ToolBoundaryShape" data-search="toolboundaryshape cmdm:toolboundary 툴 경계는 등록된 tcp에 대해서만 설정할 수 있습니다.">
+  <header class="term-head">
+    <h4><a class="anchor" href="#ToolBoundaryShape">cmdmsh:ToolBoundaryShape</a></h4>
+    <span class="badge b-shape">NodeShape</span>
+  </header>
+  <p class="target">대상 클래스 <a class="ref" href="../../ontology/#ToolBoundary"><code>cmdm:ToolBoundary</code></a></p>
+  <table class="rules">
+<thead><tr><th>경로</th><th>조건</th><th>수준</th><th>메시지</th></tr></thead>
+<tbody><tr>
+  <td data-label="경로"><a class="ref" href="../../ontology/#boundaryShape"><code>cmdm:boundaryShape</code></a></td>
+  <td data-label="조건">최소 1개 · 최대 1개</td>
+  <td data-label="수준"><span class="sev sev-violation">위반</span></td>
+  <td data-label="메시지"></td>
+</tr><tr>
+  <td data-label="경로"><a class="ref" href="../../ontology/#boundaryForTCP"><code>cmdm:boundaryForTCP</code></a></td>
+  <td data-label="조건">최소 1개</td>
+  <td data-label="수준"><span class="sev sev-violation">위반</span></td>
+  <td data-label="메시지">툴 경계는 등록된 TCP에 대해서만 설정할 수 있습니다.</td>
+</tr></tbody></table>
+</article></section><section class="module" id="sec-M7-SW-설정"><h2>M7 SW 설정</h2><article class="term shape" id="TCPProfileShape" data-search="tcpprofileshape cmdm:tcpprofile tcp 이름은 32자 이내, &#x27;-&#x27;와 &#x27;_&#x27; 외 특수문자 불가. 페이로드(툴 무게)는 필수입니다. tcp 페이로드가 로봇 모델 가반 중량을 초과합니다.">
+  <header class="term-head">
+    <h4><a class="anchor" href="#TCPProfileShape">cmdmsh:TCPProfileShape</a></h4>
+    <span class="badge b-shape">NodeShape</span>
+  </header>
+  <p class="target">대상 클래스 <a class="ref" href="../../ontology/#TCPProfile"><code>cmdm:TCPProfile</code></a></p>
+  <table class="rules">
+<thead><tr><th>경로</th><th>조건</th><th>수준</th><th>메시지</th></tr></thead>
+<tbody><tr>
+  <td data-label="경로"><a class="ref" href="../../ontology/#name"><code>cmdm:name</code></a></td>
+  <td data-label="조건">최소 1개 · 길이 ≤ 32 · 패턴 <code>^[A-Za-z0-9가-힣_\-]+$</code></td>
+  <td data-label="수준"><span class="sev sev-violation">위반</span></td>
+  <td data-label="메시지">TCP 이름은 32자 이내, &#x27;-&#x27;와 &#x27;_&#x27; 외 특수문자 불가.</td>
+</tr><tr>
+  <td data-label="경로"><a class="ref" href="../../ontology/#toolMass"><code>cmdm:toolMass</code></a></td>
+  <td data-label="조건">최소 1개 · 값 ≥ 0</td>
+  <td data-label="수준"><span class="sev sev-violation">위반</span></td>
+  <td data-label="메시지">페이로드(툴 무게)는 필수입니다.</td>
+</tr><tr>
+  <td data-label="경로"><a class="ref" href="../../ontology/#cogX"><code>cmdm:cogX</code></a></td>
+  <td data-label="조건">값 ≥ -500 · 값 ≤ 500</td>
+  <td data-label="수준"><span class="sev sev-violation">위반</span></td>
+  <td data-label="메시지"></td>
+</tr><tr>
+  <td data-label="경로"><a class="ref" href="../../ontology/#cogY"><code>cmdm:cogY</code></a></td>
+  <td data-label="조건">값 ≥ -500 · 값 ≤ 500</td>
+  <td data-label="수준"><span class="sev sev-violation">위반</span></td>
+  <td data-label="메시지"></td>
+</tr><tr>
+  <td data-label="경로"><a class="ref" href="../../ontology/#cogZ"><code>cmdm:cogZ</code></a></td>
+  <td data-label="조건">값 ≥ -500 · 값 ≤ 500</td>
+  <td data-label="수준"><span class="sev sev-violation">위반</span></td>
+  <td data-label="메시지"></td>
+</tr></tbody></table><div class="sparql">
+  <p><span class="sev sev-violation">위반</span> TCP 페이로드가 로봇 모델 가반 중량을 초과합니다.</p>
+  <details><summary>SPARQL 보기</summary><pre><code>SELECT $this ?value WHERE {
+  ?sys cmdm:hasTCPProfile $this ; cmdm:hasArm/cmdm:instanceOfModel/cmdm:hasSpecification/cmdm:payload ?max .
+  $this cmdm:toolMass ?value .
+  FILTER ( ?value &gt; ?max )
+}</code></pre></details>
+</div>
+</article><article class="term shape" id="VariableShape" data-search="variableshape cmdm:variable ">
+  <header class="term-head">
+    <h4><a class="anchor" href="#VariableShape">cmdmsh:VariableShape</a></h4>
+    <span class="badge b-shape">NodeShape</span>
+  </header>
+  <p class="target">대상 클래스 <a class="ref" href="../../ontology/#Variable"><code>cmdm:Variable</code></a></p>
+  <table class="rules">
+<thead><tr><th>경로</th><th>조건</th><th>수준</th><th>메시지</th></tr></thead>
+<tbody><tr>
+  <td data-label="경로"><a class="ref" href="../../ontology/#name"><code>cmdm:name</code></a></td>
+  <td data-label="조건">최소 1개 · 길이 ≤ 40</td>
+  <td data-label="수준"><span class="sev sev-violation">위반</span></td>
+  <td data-label="메시지"></td>
+</tr><tr>
+  <td data-label="경로"><a class="ref" href="../../ontology/#variableType"><code>cmdm:variableType</code></a></td>
+  <td data-label="조건">최소 1개 · 최대 1개</td>
+  <td data-label="수준"><span class="sev sev-violation">위반</span></td>
+  <td data-label="메시지"></td>
+</tr></tbody></table>
+</article><article class="term shape" id="LinearMoveShape" data-search="linearmoveshape cmdm:linearmove linear 속도 범위 1~1200 mm/s">
+  <header class="term-head">
+    <h4><a class="anchor" href="#LinearMoveShape">cmdmsh:LinearMoveShape</a></h4>
+    <span class="badge b-shape">NodeShape</span>
+  </header>
+  <p class="target">대상 클래스 <a class="ref" href="../../ontology/#LinearMove"><code>cmdm:LinearMove</code></a></p>
+  <table class="rules">
+<thead><tr><th>경로</th><th>조건</th><th>수준</th><th>메시지</th></tr></thead>
+<tbody><tr>
+  <td data-label="경로"><a class="ref" href="../../ontology/#speed"><code>cmdm:speed</code></a></td>
+  <td data-label="조건">값 ≥ 1 · 값 ≤ 1200</td>
+  <td data-label="수준"><span class="sev sev-violation">위반</span></td>
+  <td data-label="메시지">Linear 속도 범위 1~1200 mm/s</td>
+</tr><tr>
+  <td data-label="경로"><a class="ref" href="../../ontology/#acceleration"><code>cmdm:acceleration</code></a></td>
+  <td data-label="조건">값 ≥ 1 · 값 ≤ 3000</td>
+  <td data-label="수준"><span class="sev sev-violation">위반</span></td>
+  <td data-label="메시지"></td>
+</tr></tbody></table>
+</article><article class="term shape" id="JointMoveShape" data-search="jointmoveshape cmdm:jointmove joint 속도 범위 1~150 °/s">
+  <header class="term-head">
+    <h4><a class="anchor" href="#JointMoveShape">cmdmsh:JointMoveShape</a></h4>
+    <span class="badge b-shape">NodeShape</span>
+  </header>
+  <p class="target">대상 클래스 <a class="ref" href="../../ontology/#JointMove"><code>cmdm:JointMove</code></a></p>
+  <table class="rules">
+<thead><tr><th>경로</th><th>조건</th><th>수준</th><th>메시지</th></tr></thead>
+<tbody><tr>
+  <td data-label="경로"><a class="ref" href="../../ontology/#speed"><code>cmdm:speed</code></a></td>
+  <td data-label="조건">값 ≥ 1 · 값 ≤ 150</td>
+  <td data-label="수준"><span class="sev sev-violation">위반</span></td>
+  <td data-label="메시지">Joint 속도 범위 1~150 °/s</td>
+</tr><tr>
+  <td data-label="경로"><a class="ref" href="../../ontology/#acceleration"><code>cmdm:acceleration</code></a></td>
+  <td data-label="조건">값 ≥ 1 · 값 ≤ 300</td>
+  <td data-label="수준"><span class="sev sev-violation">위반</span></td>
+  <td data-label="메시지"></td>
+</tr></tbody></table>
+</article><article class="term shape" id="ArcCircleMoveShape" data-search="arccirclemoveshape cmdm:arcmove cmdm:circlemove ">
+  <header class="term-head">
+    <h4><a class="anchor" href="#ArcCircleMoveShape">cmdmsh:ArcCircleMoveShape</a></h4>
+    <span class="badge b-shape">NodeShape</span>
+  </header>
+  <p class="target">대상 클래스 <a class="ref" href="../../ontology/#ArcMove"><code>cmdm:ArcMove</code></a>, <a class="ref" href="../../ontology/#CircleMove"><code>cmdm:CircleMove</code></a></p>
+  <table class="rules">
+<thead><tr><th>경로</th><th>조건</th><th>수준</th><th>메시지</th></tr></thead>
+<tbody><tr>
+  <td data-label="경로"><a class="ref" href="../../ontology/#speed"><code>cmdm:speed</code></a></td>
+  <td data-label="조건">값 ≥ 1 · 값 ≤ 800</td>
+  <td data-label="수준"><span class="sev sev-violation">위반</span></td>
+  <td data-label="메시지"></td>
+</tr><tr>
+  <td data-label="경로"><a class="ref" href="../../ontology/#acceleration"><code>cmdm:acceleration</code></a></td>
+  <td data-label="조건">값 ≥ 1 · 값 ≤ 2000</td>
+  <td data-label="수준"><span class="sev sev-violation">위반</span></td>
+  <td data-label="메시지"></td>
+</tr><tr>
+  <td data-label="경로"><a class="ref" href="../../ontology/#repeatCount"><code>cmdm:repeatCount</code></a></td>
+  <td data-label="조건">값 ≥ 1 · 값 ≤ 20</td>
+  <td data-label="수준"><span class="sev sev-violation">위반</span></td>
+  <td data-label="메시지"></td>
+</tr></tbody></table>
+</article><article class="term shape" id="ThreadProgramShape" data-search="threadprogramshape cmdm:threadprogram 쓰레드 프로그램에는 move 명령을 사용할 수 없습니다.">
+  <header class="term-head">
+    <h4><a class="anchor" href="#ThreadProgramShape">cmdmsh:ThreadProgramShape</a></h4>
+    <span class="badge b-shape">NodeShape</span>
+  </header>
+  <p class="target">대상 클래스 <a class="ref" href="../../ontology/#ThreadProgram"><code>cmdm:ThreadProgram</code></a></p>
+  <div class="sparql">
+  <p><span class="sev sev-violation">위반</span> 쓰레드 프로그램에는 Move 명령을 사용할 수 없습니다.</p>
+  <details><summary>SPARQL 보기</summary><pre><code>SELECT $this ?value WHERE { $this cmdm:hasCommand+ ?value . ?value a/rdfs:subClassOf* cmdm:MoveCommand . }</code></pre></details>
+</div>
+</article><article class="term shape" id="UserAccountShape" data-search="useraccountshape cmdm:useraccount ">
+  <header class="term-head">
+    <h4><a class="anchor" href="#UserAccountShape">cmdmsh:UserAccountShape</a></h4>
+    <span class="badge b-shape">NodeShape</span>
+  </header>
+  <p class="target">대상 클래스 <a class="ref" href="../../ontology/#UserAccount"><code>cmdm:UserAccount</code></a></p>
+  <table class="rules">
+<thead><tr><th>경로</th><th>조건</th><th>수준</th><th>메시지</th></tr></thead>
+<tbody><tr>
+  <td data-label="경로"><a class="ref" href="../../ontology/#loginId"><code>cmdm:loginId</code></a></td>
+  <td data-label="조건">최소 1개 · 길이 ≤ 20</td>
+  <td data-label="수준"><span class="sev sev-violation">위반</span></td>
+  <td data-label="메시지"></td>
+</tr><tr>
+  <td data-label="경로"><a class="ref" href="../../ontology/#hasRole"><code>cmdm:hasRole</code></a></td>
+  <td data-label="조건">최소 1개 · 최대 1개</td>
+  <td data-label="수준"><span class="sev sev-violation">위반</span></td>
+  <td data-label="메시지"></td>
+</tr></tbody></table>
+</article></section><section class="module" id="sec-M8-운영"><h2>M8 운영</h2><article class="term shape" id="EventShape" data-search="eventshape cmdm:event ">
+  <header class="term-head">
+    <h4><a class="anchor" href="#EventShape">cmdmsh:EventShape</a></h4>
+    <span class="badge b-shape">NodeShape</span>
+  </header>
+  <p class="target">대상 클래스 <a class="ref" href="../../ontology/#Event"><code>cmdm:Event</code></a></p>
+  <table class="rules">
+<thead><tr><th>경로</th><th>조건</th><th>수준</th><th>메시지</th></tr></thead>
+<tbody><tr>
+  <td data-label="경로"><a class="ref" href="../../ontology/#occurredAt"><code>cmdm:occurredAt</code></a></td>
+  <td data-label="조건">최소 1개 · 최대 1개 · 형식 <code title="http://www.w3.org/2001/XMLSchema#dateTime">xsd:dateTime</code></td>
+  <td data-label="수준"><span class="sev sev-violation">위반</span></td>
+  <td data-label="메시지"></td>
+</tr><tr>
+  <td data-label="경로"><a class="ref" href="../../ontology/#eventAsset"><code>cmdm:eventAsset</code></a></td>
+  <td data-label="조건">최소 1개</td>
+  <td data-label="수준"><span class="sev sev-violation">위반</span></td>
+  <td data-label="메시지"></td>
+</tr></tbody></table>
+</article><article class="term shape" id="ObservationShape" data-search="observationshape cmdm:observation ">
+  <header class="term-head">
+    <h4><a class="anchor" href="#ObservationShape">cmdmsh:ObservationShape</a></h4>
+    <span class="badge b-shape">NodeShape</span>
+  </header>
+  <p class="target">대상 클래스 <a class="ref" href="../../ontology/#Observation"><code>cmdm:Observation</code></a></p>
+  <table class="rules">
+<thead><tr><th>경로</th><th>조건</th><th>수준</th><th>메시지</th></tr></thead>
+<tbody><tr>
+  <td data-label="경로"><a class="ref" href="../../ontology/#observedAt"><code>cmdm:observedAt</code></a></td>
+  <td data-label="조건">최소 1개 · 형식 <code title="http://www.w3.org/2001/XMLSchema#dateTime">xsd:dateTime</code></td>
+  <td data-label="수준"><span class="sev sev-violation">위반</span></td>
+  <td data-label="메시지"></td>
+</tr><tr>
+  <td data-label="경로"><a class="ref" href="../../ontology/#observedAsset"><code>cmdm:observedAsset</code></a></td>
+  <td data-label="조건">최소 1개</td>
+  <td data-label="수준"><span class="sev sev-violation">위반</span></td>
+  <td data-label="메시지"></td>
+</tr></tbody></table>
+</article><article class="term shape" id="MaintenancePlanShape" data-search="maintenanceplanshape cmdm:maintenanceplanitem ">
+  <header class="term-head">
+    <h4><a class="anchor" href="#MaintenancePlanShape">cmdmsh:MaintenancePlanShape</a></h4>
+    <span class="badge b-shape">NodeShape</span>
+  </header>
+  <p class="target">대상 클래스 <a class="ref" href="../../ontology/#MaintenancePlanItem"><code>cmdm:MaintenancePlanItem</code></a></p>
+  <table class="rules">
+<thead><tr><th>경로</th><th>조건</th><th>수준</th><th>메시지</th></tr></thead>
+<tbody><tr>
+  <td data-label="경로"><a class="ref" href="../../ontology/#interval"><code>cmdm:interval</code></a></td>
+  <td data-label="조건">최소 1개 · 형식 <code title="http://www.w3.org/2001/XMLSchema#duration">xsd:duration</code></td>
+  <td data-label="수준"><span class="sev sev-violation">위반</span></td>
+  <td data-label="메시지"></td>
+</tr><tr>
+  <td data-label="경로"><a class="ref" href="../../ontology/#inspects"><code>cmdm:inspects</code></a></td>
+  <td data-label="조건">최소 1개</td>
+  <td data-label="수준"><span class="sev sev-violation">위반</span></td>
+  <td data-label="메시지"></td>
+</tr></tbody></table>
+</article></section>
+</div>
+</main>
+<footer class="footer">
+  <div class="wrap">
+    <p>CMDM · 협동로봇 제조 데이터 관리 온톨로지 — OPMS 프로젝트 팀</p>
+    <p class="muted">이 사이트는 <code>src/*.ttl</code> 에서 <code>tools/build_docs.py</code> 로 생성됩니다.</p>
+  </div>
+</footer>
+<script src="../../assets/site.js"></script>
+</body>
+</html>

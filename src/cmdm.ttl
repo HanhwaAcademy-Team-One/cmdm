@@ -1,0 +1,841 @@
+@prefix cmdm: <https://hanhwaacademy-team-one.github.io/cmdm/ontology#> .
+@prefix owl:  <http://www.w3.org/2002/07/owl#> .
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix unit: <http://qudt.org/vocab/unit/> .
+@prefix vann: <http://purl.org/vocab/vann/> .
+
+#################################################################
+#  Cobot Manufacturing Data Management Ontology (CMDM)
+#  협동로봇 제조 데이터 관리 온톨로지 — TBox (스키마)
+#
+#  근거 자료
+#   - VORLA 시리즈 사용자 매뉴얼 V1.0 (가상 문서)
+#   - 제품명·수치·문서 번호·식별자는 모두 가상이며 실제 제품과 무관하다.
+#
+#  모듈 구성
+#   M1 제품·모델        M2 설계 BOM·CAD(STEP)   M3 재질·물성
+#   M4 기구·성능 사양    M5 전기 I/O·통신         M6 안전·규격
+#   M7 SW 설정·프로그램  M8 운영·모니터링·보전    M9 조직·문서·데이터 품질
+#################################################################
+
+<https://hanhwaacademy-team-one.github.io/cmdm/ontology>
+    a owl:Ontology ;
+    owl:versionIRI <https://hanhwaacademy-team-one.github.io/cmdm/ontology/1.0.0> ;
+    owl:versionInfo "1.0.0" ;
+    vann:preferredNamespacePrefix "cmdm" ;
+    vann:preferredNamespaceUri "https://hanhwaacademy-team-one.github.io/cmdm/ontology#" ;
+    dcterms:title "Cobot Manufacturing Data Management Ontology"@en ,
+                  "협동로봇 제조 데이터 관리 온톨로지"@ko ;
+    dcterms:created "2026-10-16"^^xsd:date ;
+    dcterms:source "VORLA Series User Manual V1.0 (fictitious)" ;
+    rdfs:comment "협동로봇(예시: 가상 VORLA 시리즈)의 설계 BOM, CAD 메타데이터, 사양, I/O, 안전 설정, 운영·보전 데이터를 통합 관리하기 위한 OWL 2 스키마. STEP AP214의 PRODUCT / PRODUCT_DEFINITION / NEXT_ASSEMBLY_USAGE_OCCURRENCE 구조와 정렬되어 있다."@ko .
+
+#################################################################
+#  Annotation properties
+#################################################################
+
+cmdm:unit a owl:AnnotationProperty ;
+    rdfs:label "단위"@ko , "unit"@en ;
+    rdfs:comment "데이터 속성 값의 측정 단위(QUDT unit IRI)."@ko .
+
+cmdm:stepEntity a owl:AnnotationProperty ;
+    rdfs:label "대응 STEP 엔티티"@ko ;
+    rdfs:comment "ISO 10303 (AP214) 상의 대응 엔티티/속성 이름."@ko .
+
+cmdm:manualSection a owl:AnnotationProperty ;
+    rdfs:label "매뉴얼 근거 절"@ko ;
+    rdfs:comment "가상 VORLA 사용자 매뉴얼의 절 번호(모듈 번호.순번)."@ko .
+
+#################################################################
+#  M1. 제품 · 모델 (Product & Configuration)
+#################################################################
+
+cmdm:ProductFamily a owl:Class ;
+    rdfs:label "제품군"@ko , "Product family"@en ;
+    rdfs:comment "동일 플랫폼을 공유하는 모델 묶음. 예: VORLA 시리즈."@ko .
+
+cmdm:RobotModel a owl:Class ;
+    rdfs:label "로봇 모델"@ko , "Robot model"@en ;
+    rdfs:comment "판매/설계 단위의 로봇 기종(타입). 예: V4, V7, V15. 개별 시리얼 단위 실물은 cmdm:PhysicalAsset."@ko .
+
+cmdm:ControllerModel a owl:Class ;
+    rdfs:label "컨트롤러 모델"@ko , "Controller model"@en ;
+    rdfs:comment "로봇 컨트롤러 기종. 예: VC-1(V4·V7 공용), VC-1H(V15 전용)."@ko ;
+    cmdm:manualSection "1.1" .
+
+cmdm:TeachingPendantModel a owl:Class ;
+    rdfs:label "티칭 펜던트 모델"@ko .
+
+cmdm:SupplyItem a owl:Class ;
+    rdfs:label "공급 구성품"@ko , "Scope-of-supply item"@en ;
+    rdfs:comment "제품 패키지에 포함되는 구성품(로봇 암, 컨트롤러, 케이블, 브라켓 등)과 모델별 수량."@ko ;
+    cmdm:manualSection "1.2" .
+
+cmdm:MountingType a owl:Class ;
+    rdfs:subClassOf skos:Concept ;
+    rdfs:label "설치 유형"@ko ;
+    rdfs:comment "바닥, 벽면, 천장, 이동 대차 등."@ko ;
+    cmdm:manualSection "1.3" .
+
+# --- 실물(시리얼 단위) 자산 ---------------------------------------
+cmdm:PhysicalAsset a owl:Class ;
+    rdfs:label "물리 자산"@ko , "Physical asset"@en ;
+    rdfs:comment "시리얼 번호로 식별되는 개별 실물. 설계 정의(ItemDefinition)나 모델(RobotModel)의 인스턴스화 결과."@ko .
+
+cmdm:RobotSystem a owl:Class ;
+    rdfs:subClassOf cmdm:PhysicalAsset ;
+    rdfs:label "로봇 시스템"@ko , "Robot system"@en ;
+    rdfs:comment "로봇 암 + 로봇 컨트롤러 + 티칭 펜던트로 구성된 설치 단위."@ko ;
+    cmdm:manualSection "1.4" .
+
+cmdm:RobotArmUnit a owl:Class ;
+    rdfs:subClassOf cmdm:PhysicalAsset ;
+    rdfs:label "로봇 암(실물)"@ko .
+
+cmdm:RobotControllerUnit a owl:Class ;
+    rdfs:subClassOf cmdm:PhysicalAsset ;
+    rdfs:label "로봇 컨트롤러(실물)"@ko .
+
+cmdm:TeachingPendantUnit a owl:Class ;
+    rdfs:subClassOf cmdm:PhysicalAsset ;
+    rdfs:label "티칭 펜던트(실물)"@ko .
+
+cmdm:ExternalDevice a owl:Class ;
+    rdfs:subClassOf cmdm:PhysicalAsset ;
+    rdfs:label "외부 장비"@ko ;
+    rdfs:comment "로봇과 연동되는 주변 장비."@ko ;
+    cmdm:manualSection "1.5" .
+
+cmdm:PLC a owl:Class ; rdfs:subClassOf cmdm:ExternalDevice ; rdfs:label "PLC"@ko .
+cmdm:VisionSystem a owl:Class ; rdfs:subClassOf cmdm:ExternalDevice ; rdfs:label "비전 시스템"@ko ; cmdm:manualSection "1.6" .
+cmdm:Conveyor a owl:Class ; rdfs:subClassOf cmdm:ExternalDevice ; rdfs:label "컨베이어"@ko ; cmdm:manualSection "1.7" .
+cmdm:ForceTorqueSensor a owl:Class ; rdfs:subClassOf cmdm:ExternalDevice ; rdfs:label "힘/토크 센서"@ko ;
+    rdfs:comment "지원 센서 목록은 사양서로 관리한다(예: 가상 FTX-60)."@ko ; cmdm:manualSection "1.8" .
+cmdm:EndEffector a owl:Class ; rdfs:subClassOf cmdm:ExternalDevice ; rdfs:label "툴(엔드이펙터)"@ko ;
+    rdfs:comment "그리퍼 등 툴 플랜지에 장착되는 장치(제품 미포함)."@ko .
+
+cmdm:ProductFamily owl:disjointWith cmdm:RobotModel .
+cmdm:RobotModel owl:disjointWith cmdm:PhysicalAsset .
+
+#################################################################
+#  M2. 설계 BOM · CAD (Engineering BOM, STEP AP214 정렬)
+#################################################################
+
+cmdm:ItemDefinition a owl:Class ;
+    rdfs:label "아이템 정의"@ko , "Item definition"@en ;
+    rdfs:comment "설계 관점의 부품/조립품 마스터(형번 단위). CAD 모델 하나와 대응한다."@ko ;
+    cmdm:stepEntity "PRODUCT + PRODUCT_DEFINITION_FORMATION + PRODUCT_DEFINITION" .
+
+cmdm:AssemblyDefinition a owl:Class ;
+    rdfs:subClassOf cmdm:ItemDefinition ;
+    rdfs:label "조립품 정의"@ko , "Assembly definition"@en ;
+    rdfs:comment "하위 BOM 라인을 가지는 아이템 (Creo *_ASM)."@ko .
+
+cmdm:PartDefinition a owl:Class ;
+    rdfs:subClassOf cmdm:ItemDefinition ;
+    rdfs:label "부품 정의"@ko , "Part definition"@en ;
+    rdfs:comment "더 이상 분해되지 않는 단품 (Creo *.prt)."@ko .
+
+cmdm:AssemblyDefinition owl:disjointWith cmdm:PartDefinition .
+
+# --- 조립품 하위 분류 ---
+cmdm:RobotBodyAssembly a owl:Class ; rdfs:subClassOf cmdm:AssemblyDefinition ;
+    rdfs:label "로봇 바디 최상위 조립"@ko ; rdfs:comment "예: V7_ARM_TOP_ASM"@ko .
+cmdm:JointAssembly a owl:Class ; rdfs:subClassOf cmdm:AssemblyDefinition ;
+    rdfs:label "관절 조립"@ko ; rdfs:comment "하나 이상의 관절(J1~J6)을 구현하는 하우징 모듈. 예: AX56_MODULE은 두 관절을 구현하거나 동일 설계가 두 번 사용됨."@ko .
+cmdm:BaseAssembly a owl:Class ; rdfs:subClassOf cmdm:AssemblyDefinition ; rdfs:label "베이스 조립"@ko .
+cmdm:ArmAssembly a owl:Class ; rdfs:subClassOf cmdm:AssemblyDefinition ; rdfs:label "암(링크) 조립"@ko .
+cmdm:ToolIOAssembly a owl:Class ; rdfs:subClassOf cmdm:AssemblyDefinition ; rdfs:label "툴 I/O 조립"@ko .
+
+# --- 부품 하위 분류 ---
+cmdm:StructuralPart a owl:Class ; rdfs:subClassOf cmdm:PartDefinition ; rdfs:label "구조 부품"@ko .
+cmdm:Housing a owl:Class ; rdfs:subClassOf cmdm:StructuralPart ; rdfs:label "관절 하우징"@ko .
+cmdm:HousingCover a owl:Class ; rdfs:subClassOf cmdm:StructuralPart ; rdfs:label "하우징 커버"@ko .
+cmdm:ArmLink a owl:Class ; rdfs:subClassOf cmdm:StructuralPart ; rdfs:label "암 링크"@ko ; rdfs:comment "상완·하완 링크 등."@ko .
+cmdm:BasePlate a owl:Class ; rdfs:subClassOf cmdm:StructuralPart ; rdfs:label "베이스 플레이트"@ko .
+cmdm:Mount a owl:Class ; rdfs:subClassOf cmdm:StructuralPart ; rdfs:label "마운트/브라켓"@ko .
+cmdm:CoverPanel a owl:Class ; rdfs:subClassOf cmdm:StructuralPart ; rdfs:label "커버/패널"@ko ; rdfs:comment "베이스 커버, 하부 커버, 서비스 패널 등."@ko .
+cmdm:RotationRing a owl:Class ; rdfs:subClassOf cmdm:PartDefinition ; rdfs:label "회전 링"@ko ; rdfs:comment "관절 회전부 링(주로 POM)."@ko .
+cmdm:SealingPart a owl:Class ; rdfs:subClassOf cmdm:PartDefinition ; rdfs:label "실링 부품"@ko .
+cmdm:RubBand a owl:Class ; rdfs:subClassOf cmdm:SealingPart ; rdfs:label "러버 밴드"@ko .
+cmdm:Grommet a owl:Class ; rdfs:subClassOf cmdm:SealingPart ; rdfs:label "그로밋"@ko .
+cmdm:Fastener a owl:Class ; rdfs:subClassOf cmdm:PartDefinition ; rdfs:label "체결 부품"@ko ; rdfs:comment "볼트, 나사 등 표준품."@ko .
+cmdm:ElectricalConnector a owl:Class ; rdfs:subClassOf cmdm:PartDefinition ; rdfs:label "전기 커넥터"@ko ; rdfs:comment "툴 I/O, EtherCAT, 전원용 사각 커넥터, 원형 커넥터 등."@ko .
+
+# --- BOM 라인 (사용 발생) ---
+cmdm:BOMLine a owl:Class ;
+    rdfs:label "BOM 라인"@ko , "BOM line (usage occurrence)"@en ;
+    rdfs:comment "상위 조립품에서 하위 아이템이 사용되는 관계를 수량과 함께 표현(관계의 실체화). 동일 하위 아이템이 N회 배치되면 quantity=N."@ko ;
+    cmdm:stepEntity "NEXT_ASSEMBLY_USAGE_OCCURRENCE" .
+
+# --- CAD / 문서 ---
+cmdm:Document a owl:Class ;
+    rdfs:label "문서"@ko , "Document"@en .
+
+cmdm:CADModelFile a owl:Class ;
+    rdfs:subClassOf cmdm:Document ;
+    rdfs:label "CAD 모델 파일"@ko , "CAD model file"@en ;
+    rdfs:comment "STEP 등 교환 형식의 3D 모델 파일과 헤더 메타데이터."@ko ;
+    cmdm:stepEntity "FILE_NAME / FILE_SCHEMA (HEADER)" .
+
+cmdm:UserManual a owl:Class ;
+    rdfs:subClassOf cmdm:Document ;
+    rdfs:label "사용자 매뉴얼"@ko .
+
+cmdm:Drawing a owl:Class ;
+    rdfs:subClassOf cmdm:Document ;
+    rdfs:label "도면"@ko ;
+    rdfs:comment "도면 번호(SPEC 속성, 예: DW-21-004213B)로 식별되는 2D 도면."@ko .
+
+cmdm:BoundingBox a owl:Class ;
+    rdfs:label "경계 상자"@ko ;
+    rdfs:comment "모델 좌표계 기준 축 정렬 경계 상자(mm)."@ko .
+
+#################################################################
+#  M3. 재질 · 물성 (Material)
+#################################################################
+
+cmdm:Material a owl:Class ;
+    rdfs:label "재질"@ko , "Material"@en ;
+    rdfs:comment "부품에 지정된 재질 등급. 예: A7075-T6, AC4C, PA66, EPDM, SCM440, SUS304."@ko ;
+    cmdm:stepEntity "PTC_MATERIAL_NAME / MAT (user defined attribute)" .
+
+cmdm:MaterialCategory a owl:Class ;
+    rdfs:subClassOf skos:Concept ;
+    rdfs:label "재질 분류"@ko ;
+    rdfs:comment "알루미늄 합금(판재/다이캐스팅), 엔지니어링 플라스틱, 고무, 탄소강, 합금강, 스테인리스강 등."@ko .
+
+#################################################################
+#  M4. 기구 · 성능 사양 (Kinematics & Specification)
+#################################################################
+
+cmdm:Joint a owl:Class ;
+    rdfs:label "관절(축)"@ko , "Joint"@en ;
+    rdfs:comment "로봇 모델의 회전 관절 J1~J6. 구동범위, 최대속도, 정지거리 등 사양을 가진다."@ko ;
+    cmdm:manualSection "4.1" .
+
+cmdm:JointRole a owl:Class ;
+    rdfs:subClassOf skos:Concept ;
+    rdfs:label "관절 역할"@ko ;
+    rdfs:comment "Base, Shoulder, Elbow, Wrist1, Wrist2, Wrist3."@ko .
+
+cmdm:ToolFlange a owl:Class ;
+    rdfs:label "툴 플랜지"@ko ;
+    rdfs:comment "ISO 9409-1 규격 툴 장착부."@ko ;
+    cmdm:manualSection "4.2" .
+
+cmdm:TechnicalSpecification a owl:Class ;
+    rdfs:label "기술 사양"@ko , "Technical specification"@en ;
+    rdfs:comment "특정 출처 문서(버전)에서 인용한 모델 사양 묶음. 출처별 버전 관리를 위해 모델과 분리."@ko ;
+    cmdm:manualSection "4.3" .
+
+cmdm:MountingSpecification a owl:Class ;
+    rdfs:label "고정 사양"@ko ;
+    rdfs:comment "베이스 고정 볼트 규격·체결 토크·위치결정 핀 지름."@ko ;
+    cmdm:manualSection "4.4" .
+
+cmdm:StopPerformance a owl:Class ;
+    rdfs:label "정지 성능"@ko ;
+    rdfs:comment "관절별 정지 카테고리 1 정지 거리(°)와 정지 시간(s). 측정 조건은 사양서에 함께 기록한다."@ko ;
+    cmdm:manualSection "4.5" .
+
+cmdm:JointPose a owl:Class ;
+    rdfs:label "관절 자세"@ko ;
+    rdfs:comment "J1~J6 각도 묶음(포장 자세, 홈 자세, 위치 변수 등)."@ko .
+
+#################################################################
+#  M5. 전기 인터페이스 · I/O · 통신
+#################################################################
+
+cmdm:Port a owl:Class ;
+    rdfs:label "포트/커넥터 인터페이스"@ko , "Port"@en ;
+    rdfs:comment "기기 상의 물리적 연결 인터페이스(툴 I/O, EtherCAT, 컨트롤러 단자대 등)."@ko .
+
+cmdm:ToolIOPort a owl:Class ; rdfs:subClassOf cmdm:Port ; rdfs:label "툴 I/O 포트"@ko ; cmdm:manualSection "5.1" .
+cmdm:EtherCATPort a owl:Class ; rdfs:subClassOf cmdm:Port ; rdfs:label "EtherCAT 포트"@ko .
+cmdm:ControllerTerminal a owl:Class ; rdfs:subClassOf cmdm:Port ; rdfs:label "컨트롤러 I/O 단자대"@ko ; cmdm:manualSection "5.2" .
+
+cmdm:Pin a owl:Class ;
+    rdfs:label "핀"@ko ;
+    rdfs:comment "포트의 핀 번호, 신호, 케이블 색상."@ko .
+
+cmdm:IOChannelGroup a owl:Class ;
+    rdfs:label "I/O 채널 그룹"@ko ;
+    rdfs:comment "동일 종류·방향의 I/O 채널 묶음과 채널 수(예: 컨트롤러 안전 입력 6EA)."@ko ;
+    cmdm:manualSection "5.3" .
+
+cmdm:IOChannel a owl:Class ;
+    rdfs:label "I/O 채널"@ko ;
+    rdfs:comment "개별 입출력 채널. 사용자 이름(최대 20자)과 할당 기능을 가진다."@ko ;
+    cmdm:manualSection "5.4" .
+cmdm:DigitalInput  a owl:Class ; rdfs:subClassOf cmdm:IOChannel ; rdfs:label "디지털 입력"@ko .
+cmdm:DigitalOutput a owl:Class ; rdfs:subClassOf cmdm:IOChannel ; rdfs:label "디지털 출력"@ko .
+cmdm:AnalogInput   a owl:Class ; rdfs:subClassOf cmdm:IOChannel ; rdfs:label "아날로그 입력"@ko .
+cmdm:AnalogOutput  a owl:Class ; rdfs:subClassOf cmdm:IOChannel ; rdfs:label "아날로그 출력"@ko .
+
+cmdm:IOCategory a owl:Class ; rdfs:subClassOf skos:Concept ;
+    rdfs:label "I/O 분류"@ko ; rdfs:comment "안전 입력, 범용 I/O, 툴 I/O, 이중화 I/O."@ko .
+cmdm:IOFunction a owl:Class ; rdfs:subClassOf skos:Concept ;
+    rdfs:label "I/O 할당 기능"@ko ; rdfs:comment "프로그램 시작·정지·일시정지, 핸드가이드 모드, 프로그램 상태 출력, 보호정지 해제, 감속 모드, 비상정지, 로봇 이동 중 등."@ko .
+cmdm:SignalType a owl:Class ; rdfs:subClassOf skos:Concept ; rdfs:label "신호 형식"@ko ; rdfs:comment "PNP/NPN/Sink, 4–20 mA, 0–10 V 등."@ko .
+
+cmdm:CommunicationProtocol a owl:Class ;
+    rdfs:label "통신 프로토콜"@ko ; rdfs:comment "TCP/IP, Modbus TCP, EtherCAT."@ko .
+
+cmdm:ModbusDevice a owl:Class ; rdfs:label "Modbus 디바이스"@ko ; cmdm:manualSection "5.5" .
+cmdm:ModbusSignal a owl:Class ; rdfs:label "Modbus I/O"@ko ;
+    rdfs:comment "디지털 입력/출력, 레지스터 입력/출력(2 byte, 0~65535). 업데이트 주기 0, 5, 10, 25, 50, 125 Hz."@ko .
+
+cmdm:Encoder a owl:Class ; rdfs:label "엔코더 설정"@ko ; rdfs:comment "Quadrature/Count, 레졸루션, 채널(1/2), 회전당 이동거리."@ko .
+
+#################################################################
+#  M6. 안전 · 규격 (Safety & Compliance)
+#################################################################
+
+cmdm:SafetyFunction a owl:Class ;
+    rdfs:label "안전 기능"@ko ;
+    rdfs:comment "비상 정지, 안전 보호 정지 등 내장 안전 기능. 정지 카테고리와 성능 수준(PL)을 가진다."@ko ;
+    cmdm:manualSection "6.1" .
+
+cmdm:SafetyConfiguration a owl:Class ;
+    rdfs:label "안전 설정"@ko ;
+    rdfs:comment "로봇에 적용된 안전 설정 묶음. 변경 시 CRC 값이 갱신된다(대상: 동작 제한, 이중 I/O, 안전 경계, 안전 보호)."@ko ;
+    cmdm:manualSection "6.2" .
+
+cmdm:MotionLimitSetting a owl:Class ;
+    rdfs:label "동작 제한 설정"@ko ;
+    rdfs:comment "토크(Nm), 포스(N), TCP 속도(mm/s), 충돌 완화, 감속 모드 속도, 프리셋."@ko ;
+    cmdm:manualSection "6.3" .
+
+cmdm:JointLimitSetting a owl:Class ;
+    rdfs:label "관절 제한 설정"@ko ;
+    rdfs:comment "사용자가 설정한 관절별 범위(°)·속도(°/s) 제한. 하드웨어 구동범위(Joint) 이내여야 한다."@ko .
+
+cmdm:SafetyBoundary a owl:Class ;
+    rdfs:label "안전 경계"@ko .
+cmdm:WorkspaceBoundary a owl:Class ; rdfs:subClassOf cmdm:SafetyBoundary ;
+    rdfs:label "작업영역 안전 경계면"@ko ; rdfs:comment "중심 좌표와 법선 방향을 가진 가상 펜스 평면."@ko ; cmdm:manualSection "6.4" .
+cmdm:ToolBoundary a owl:Class ; rdfs:subClassOf cmdm:SafetyBoundary ;
+    rdfs:label "툴 안전 경계"@ko ; rdfs:comment "TCP 기준 박스/구/원기둥/원뿔 형상."@ko ; cmdm:manualSection "6.5" .
+
+cmdm:BoundaryShape a owl:Class ; rdfs:subClassOf skos:Concept ; rdfs:label "경계 형상"@ko .
+
+cmdm:DualIOAssignment a owl:Class ;
+    rdfs:label "이중 I/O 할당"@ko ; rdfs:comment "두 개 채널을 하나의 안전 신호로 묶고 기능을 할당."@ko ; cmdm:manualSection "6.6" .
+
+cmdm:StopCategory a owl:Class ; rdfs:subClassOf skos:Concept ;
+    rdfs:label "정지 카테고리 (IEC 60204-1)"@ko .
+cmdm:PerformanceLevel a owl:Class ; rdfs:subClassOf skos:Concept ;
+    rdfs:label "성능 수준 (ISO 13849-1)"@ko .
+
+cmdm:Hazard a owl:Class ; rdfs:label "잠재 위험"@ko ; cmdm:manualSection "6.7" .
+cmdm:RiskAssessment a owl:Class ; rdfs:label "위험성 평가"@ko ;
+    rdfs:comment "설치 직후 ISO 12100 / ISO 10218-2 / ISO/TS 15066에 따라 수행하는 평가 기록."@ko ; cmdm:manualSection "6.8" .
+
+cmdm:Standard a owl:Class ; rdfs:label "규격"@ko , "Standard"@en .
+cmdm:Certification a owl:Class ; rdfs:label "인증"@ko ; cmdm:manualSection "6.9" .
+cmdm:Warranty a owl:Class ; rdfs:label "품질 보증 조건"@ko ; cmdm:manualSection "6.10" .
+
+#################################################################
+#  M7. 소프트웨어 설정 · 프로그램
+#################################################################
+
+cmdm:SoftwareRelease a owl:Class ; rdfs:label "소프트웨어 릴리즈"@ko ;
+    rdfs:comment "운영 SW(Tessel OS)·제어 펌웨어 버전. 업데이트 패키지 확장자 .tpk."@ko ; cmdm:manualSection "7.1" .
+
+cmdm:UserAccount a owl:Class ; rdfs:label "사용자 계정"@ko ; cmdm:manualSection "7.2" .
+cmdm:UserRole a owl:Class ; rdfs:subClassOf skos:Concept ; rdfs:label "사용자 권한"@ko ;
+    rdfs:comment "관리자, 작업자, 정비자(원점 보정 전용)."@ko .
+
+cmdm:MountingConfiguration a owl:Class ; rdfs:label "마운팅(설치 각도) 설정"@ko ; cmdm:manualSection "7.3" .
+
+cmdm:TCPProfile a owl:Class ; rdfs:label "TCP 프로파일"@ko ;
+    rdfs:comment "툴 끝점 위치(X,Y,Z mm)·방향(Rx,Ry,Rz)·무게중심(±500 mm)·페이로드(kg). 이름 최대 32자. 기본 프로파일 'Default'."@ko ;
+    cmdm:manualSection "7.4" .
+
+cmdm:CoordinateDefinition a owl:Class ; rdfs:label "사용자 좌표"@ko ; cmdm:manualSection "7.5" .
+cmdm:PointCoordinate a owl:Class ; rdfs:subClassOf cmdm:CoordinateDefinition ; rdfs:label "포인트 좌표"@ko .
+cmdm:LineCoordinate  a owl:Class ; rdfs:subClassOf cmdm:CoordinateDefinition ; rdfs:label "라인 좌표"@ko .
+cmdm:PlaneCoordinate a owl:Class ; rdfs:subClassOf cmdm:CoordinateDefinition ; rdfs:label "평면 좌표"@ko .
+
+cmdm:Variable a owl:Class ; rdfs:label "변수"@ko ;
+    rdfs:comment "Number/String/Boolean/Position/Joint/Array. 이름 최대 40자, String 최대 255자."@ko ; cmdm:manualSection "7.6" .
+cmdm:VariableType a owl:Class ; rdfs:subClassOf skos:Concept ; rdfs:label "변수 타입"@ko .
+
+cmdm:RobotProgram a owl:Class ; rdfs:label "로봇 프로그램"@ko ; cmdm:manualSection "7.7" .
+cmdm:MainProgram a owl:Class ; rdfs:subClassOf cmdm:RobotProgram ; rdfs:label "메인 프로그램"@ko .
+cmdm:SubProgram  a owl:Class ; rdfs:subClassOf cmdm:RobotProgram ; rdfs:label "서브 프로그램"@ko .
+cmdm:ThreadProgram a owl:Class ; rdfs:subClassOf cmdm:RobotProgram ; rdfs:label "쓰레드 프로그램"@ko ; rdfs:comment "Move 명령 사용 불가."@ko .
+cmdm:EventProgram a owl:Class ; rdfs:subClassOf cmdm:ThreadProgram ; rdfs:label "이벤트 쓰레드"@ko .
+
+cmdm:ProgramCommand a owl:Class ; rdfs:label "프로그램 명령"@ko .
+cmdm:MoveCommand a owl:Class ; rdfs:subClassOf cmdm:ProgramCommand ; rdfs:label "Move 명령"@ko ; cmdm:manualSection "7.8" .
+cmdm:LinearMove a owl:Class ; rdfs:subClassOf cmdm:MoveCommand ; rdfs:label "Linear"@ko ; rdfs:comment "속도 1~1200 mm/s, 가속도 1~3000 mm/s²."@ko .
+cmdm:JointMove  a owl:Class ; rdfs:subClassOf cmdm:MoveCommand ; rdfs:label "Joint"@ko ; rdfs:comment "속도 1~150 °/s, 가속도 1~300 °/s²."@ko .
+cmdm:ArcMove    a owl:Class ; rdfs:subClassOf cmdm:MoveCommand ; rdfs:label "Arc"@ko ; rdfs:comment "속도 1~800 mm/s, 가속도 1~2000 mm/s²."@ko .
+cmdm:CircleMove a owl:Class ; rdfs:subClassOf cmdm:MoveCommand ; rdfs:label "Circle"@ko ; rdfs:comment "속도 1~800 mm/s, 반복 1~20."@ko .
+cmdm:IfCommand a owl:Class ; rdfs:subClassOf cmdm:ProgramCommand ; rdfs:label "If"@ko .
+cmdm:LoopCommand a owl:Class ; rdfs:subClassOf cmdm:ProgramCommand ; rdfs:label "Loop"@ko .
+cmdm:SwitchCommand a owl:Class ; rdfs:subClassOf cmdm:ProgramCommand ; rdfs:label "Switch"@ko .
+cmdm:WaitCommand a owl:Class ; rdfs:subClassOf cmdm:ProgramCommand ; rdfs:label "Wait"@ko .
+cmdm:SetCommand a owl:Class ; rdfs:subClassOf cmdm:ProgramCommand ; rdfs:label "Set (I/O·Variable·TCP)"@ko .
+cmdm:SubProgramCall a owl:Class ; rdfs:subClassOf cmdm:ProgramCommand ; rdfs:label "Sub Program 호출"@ko .
+cmdm:FolderCommand a owl:Class ; rdfs:subClassOf cmdm:ProgramCommand ; rdfs:label "Folder"@ko .
+cmdm:MessageCommand a owl:Class ; rdfs:subClassOf cmdm:ProgramCommand ; rdfs:label "Message"@ko .
+cmdm:HaltCommand a owl:Class ; rdfs:subClassOf cmdm:ProgramCommand ; rdfs:label "Halt"@ko .
+cmdm:PatternCommand a owl:Class ; rdfs:subClassOf cmdm:ProgramCommand ; rdfs:label "Pattern"@ko ; rdfs:comment "적층·해체·직선·격자 패턴."@ko .
+cmdm:VisionCommand a owl:Class ; rdfs:subClassOf cmdm:ProgramCommand ; rdfs:label "Vision"@ko .
+cmdm:ConveyorCommand a owl:Class ; rdfs:subClassOf cmdm:ProgramCommand ; rdfs:label "Conveyor"@ko .
+cmdm:ScriptCommand a owl:Class ; rdfs:subClassOf cmdm:ProgramCommand ; rdfs:label "Script"@ko .
+cmdm:PathCommand a owl:Class ; rdfs:subClassOf cmdm:ProgramCommand ; rdfs:label "Path(직접교시 경로 기록)"@ko .
+cmdm:PatternType a owl:Class ; rdfs:subClassOf skos:Concept ; rdfs:label "패턴 종류"@ko .
+
+cmdm:ConfigurationBackup a owl:Class ; rdfs:subClassOf cmdm:Document ;
+    rdfs:label "설정 백업 파일"@ko ; rdfs:comment "설정 내보내기 파일(TCP, 마운팅, 좌표, 전역변수, 동작 제한, 안전 경계, I/O, Modbus, 비전)."@ko ; cmdm:manualSection "7.9" .
+cmdm:SettingCategory a owl:Class ; rdfs:subClassOf skos:Concept ; rdfs:label "설정 항목 분류"@ko .
+
+#################################################################
+#  M8. 운영 · 모니터링 · 이벤트 · 보전
+#################################################################
+
+cmdm:OperatingState a owl:Class ; rdfs:subClassOf skos:Concept ;
+    rdfs:label "운영 상태"@ko ;
+    rdfs:comment "운전(흰색 LED), 핸드가이드(청록색), 충돌 감지(주황색), 관절 범위 초과(보라색), 서보 On/Off, 프로그램 실행·일시정지·정지 등."@ko ;
+    cmdm:manualSection "8.1" .
+
+cmdm:Observation a owl:Class ;
+    rdfs:label "관측 기록"@ko , "Observation"@en ;
+    rdfs:comment "특정 자산에서 특정 시각에 측정된 값. SOSA/SSN의 sosa:Observation에 대응."@ko ;
+    skos:closeMatch <http://www.w3.org/ns/sosa/Observation> .
+cmdm:JointStateObservation a owl:Class ; rdfs:subClassOf cmdm:Observation ; rdfs:label "관절 상태 관측"@ko ; rdfs:comment "관절 각도·속도."@ko ; cmdm:manualSection "8.2" .
+cmdm:PowerObservation a owl:Class ; rdfs:subClassOf cmdm:Observation ; rdfs:label "전력 관측"@ko ; rdfs:comment "전력 소비량·전압·전류."@ko ; cmdm:manualSection "8.3" .
+cmdm:IOStateObservation a owl:Class ; rdfs:subClassOf cmdm:Observation ; rdfs:label "I/O 상태 관측"@ko ; rdfs:comment "모니터링 주기 20 Hz."@ko ; cmdm:manualSection "8.4" .
+cmdm:UptimeRecord a owl:Class ; rdfs:subClassOf cmdm:Observation ; rdfs:label "가동시간 기록"@ko ; rdfs:comment "시스템 누적·서보·프로그램 구동 시간(일 단위 집계)."@ko ; cmdm:manualSection "8.5" .
+
+cmdm:Event a owl:Class ; rdfs:label "이벤트"@ko .
+cmdm:ErrorEvent a owl:Class ; rdfs:subClassOf cmdm:Event ; rdfs:label "오류 이벤트"@ko ; rdfs:comment "오류제목·오류내용·오류대상·오류시간."@ko ; cmdm:manualSection "8.6" .
+cmdm:CollisionEvent a owl:Class ; rdfs:subClassOf cmdm:Event ; rdfs:label "충돌 감지 이벤트"@ko .
+cmdm:EmergencyStopEvent a owl:Class ; rdfs:subClassOf cmdm:Event ; rdfs:label "비상 정지 이벤트"@ko .
+cmdm:SafeguardStopEvent a owl:Class ; rdfs:subClassOf cmdm:Event ; rdfs:label "안전 보호 정지 이벤트"@ko .
+cmdm:JointRangeExceededEvent a owl:Class ; rdfs:subClassOf cmdm:Event ; rdfs:label "관절 구동범위 초과"@ko ; cmdm:manualSection "8.7" .
+cmdm:ConfigurationChangeEvent a owl:Class ; rdfs:subClassOf cmdm:Event ; rdfs:label "설정 변경 이벤트"@ko ; rdfs:comment "안전 설정 변경 시 CRC 갱신 이력."@ko .
+
+cmdm:ErrorCode a owl:Class ; rdfs:label "에러 코드"@ko ; rdfs:comment "예: E-7712 컨트롤러와 암의 보정 데이터 불일치(V15)."@ko .
+
+cmdm:MaintenancePlanItem a owl:Class ; rdfs:label "점검 계획 항목"@ko ;
+    rdfs:comment "점검 대상·점검 사항·주기(주간/분기/연간)."@ko ; cmdm:manualSection "8.8" .
+cmdm:MaintenanceRecord a owl:Class ; rdfs:subClassOf cmdm:Event ; rdfs:label "점검/정비 이력"@ko .
+cmdm:LogArchive a owl:Class ; rdfs:subClassOf cmdm:Document ; rdfs:label "로그 아카이브"@ko ;
+    rdfs:comment "'날짜-시간' 폴더로 내보낸 로그 + 로봇 설정 + 프로그램 파일."@ko ; cmdm:manualSection "8.9" .
+
+#################################################################
+#  M9. 조직 · 사람 · 데이터 품질
+#################################################################
+
+cmdm:Agent a owl:Class ; rdfs:label "행위자"@ko ; skos:closeMatch <http://www.w3.org/ns/prov#Agent> .
+cmdm:Organization a owl:Class ; rdfs:subClassOf cmdm:Agent ; rdfs:label "조직"@ko .
+cmdm:Person a owl:Class ; rdfs:subClassOf cmdm:Agent ; rdfs:label "사람"@ko .
+cmdm:Organization owl:disjointWith cmdm:Person .
+
+cmdm:DataQualityIssue a owl:Class ;
+    rdfs:label "데이터 품질 이슈"@ko , "Data quality issue"@en ;
+    rdfs:comment "원천 데이터(STEP 속성 등)에서 발견된 누락·플레이스홀더·불일치 기록. 정제 작업 추적용."@ko .
+cmdm:IssueType a owl:Class ; rdfs:subClassOf skos:Concept ; rdfs:label "이슈 유형"@ko .
+cmdm:Severity a owl:Class ; rdfs:subClassOf skos:Concept ; rdfs:label "심각도"@ko .
+
+#################################################################
+#  Object properties
+#################################################################
+
+# --- M1 ---
+cmdm:belongsToFamily a owl:ObjectProperty , owl:FunctionalProperty ;
+    rdfs:domain cmdm:RobotModel ; rdfs:range cmdm:ProductFamily ; rdfs:label "제품군 소속"@ko .
+cmdm:hasModel a owl:ObjectProperty ; owl:inverseOf cmdm:belongsToFamily ; rdfs:label "모델 보유"@ko .
+
+cmdm:usesControllerModel a owl:ObjectProperty ;
+    rdfs:domain cmdm:RobotModel ; rdfs:range cmdm:ControllerModel ; rdfs:label "사용 컨트롤러 모델"@ko .
+
+cmdm:supportedMounting a owl:ObjectProperty ;
+    rdfs:domain cmdm:RobotModel ; rdfs:range cmdm:MountingType ; rdfs:label "지원 설치 유형"@ko .
+
+cmdm:includesSupplyItem a owl:ObjectProperty ;
+    rdfs:domain cmdm:RobotModel ; rdfs:range cmdm:SupplyItem ; rdfs:label "공급 구성품 포함"@ko .
+
+cmdm:hasEngineeringModel a owl:ObjectProperty ;
+    rdfs:domain cmdm:RobotModel ; rdfs:range cmdm:AssemblyDefinition ;
+    rdfs:label "설계 최상위 조립"@ko ; rdfs:comment "모델 ↔ CAD 최상위 바디 조립품 연결."@ko .
+
+cmdm:instanceOfModel a owl:ObjectProperty , owl:FunctionalProperty ;
+    rdfs:domain cmdm:PhysicalAsset ; rdfs:label "모델의 실물"@ko ;
+    rdfs:comment "실물 자산이 어느 모델(RobotModel/ControllerModel 등)의 인스턴스인지."@ko .
+
+cmdm:hasArm a owl:ObjectProperty , owl:FunctionalProperty ; rdfs:domain cmdm:RobotSystem ; rdfs:range cmdm:RobotArmUnit ; rdfs:label "로봇 암"@ko .
+cmdm:hasController a owl:ObjectProperty , owl:FunctionalProperty ; rdfs:domain cmdm:RobotSystem ; rdfs:range cmdm:RobotControllerUnit ; rdfs:label "컨트롤러"@ko .
+cmdm:hasTeachingPendant a owl:ObjectProperty ; rdfs:domain cmdm:RobotSystem ; rdfs:range cmdm:TeachingPendantUnit ; rdfs:label "티칭 펜던트"@ko .
+cmdm:pairedWith a owl:ObjectProperty , owl:SymmetricProperty ;
+    rdfs:domain cmdm:PhysicalAsset ; rdfs:range cmdm:PhysicalAsset ;
+    rdfs:label "캘리브레이션 페어링"@ko ; rdfs:comment "V15는 컨트롤러와 로봇 암의 보정 데이터가 짝지어져 있어야 함(에러 E-7712)."@ko .
+cmdm:connectedDevice a owl:ObjectProperty ; rdfs:domain cmdm:RobotSystem ; rdfs:range cmdm:ExternalDevice ; rdfs:label "연동 장비"@ko .
+cmdm:installedAt a owl:ObjectProperty ; rdfs:domain cmdm:PhysicalAsset ; rdfs:range cmdm:Organization ; rdfs:label "설치 고객/현장"@ko .
+cmdm:hasMountingType a owl:ObjectProperty ; rdfs:domain cmdm:RobotSystem ; rdfs:range cmdm:MountingType ; rdfs:label "실제 설치 유형"@ko .
+
+# --- M2 ---
+cmdm:hasBOMLine a owl:ObjectProperty , owl:InverseFunctionalProperty ;
+    rdfs:domain cmdm:AssemblyDefinition ; rdfs:range cmdm:BOMLine ; rdfs:label "BOM 라인 보유"@ko .
+cmdm:bomParent a owl:ObjectProperty , owl:FunctionalProperty ;
+    owl:inverseOf cmdm:hasBOMLine ; rdfs:label "상위 조립품"@ko ;
+    cmdm:stepEntity "NEXT_ASSEMBLY_USAGE_OCCURRENCE.relating_product_definition" .
+cmdm:bomChild a owl:ObjectProperty , owl:FunctionalProperty ;
+    rdfs:domain cmdm:BOMLine ; rdfs:range cmdm:ItemDefinition ; rdfs:label "하위 아이템"@ko ;
+    cmdm:stepEntity "NEXT_ASSEMBLY_USAGE_OCCURRENCE.related_product_definition" .
+cmdm:usedIn a owl:ObjectProperty ; owl:inverseOf cmdm:bomChild ; rdfs:label "사용처 BOM 라인"@ko .
+
+cmdm:hasComponent a owl:ObjectProperty , owl:TransitiveProperty ;
+    rdfs:domain cmdm:ItemDefinition ; rdfs:range cmdm:ItemDefinition ;
+    rdfs:label "구성 아이템(전개)"@ko ; rdfs:comment "다단계 BOM 전개를 위한 전이적 포함 관계."@ko .
+cmdm:hasDirectComponent a owl:ObjectProperty ;
+    rdfs:subPropertyOf cmdm:hasComponent ;
+    owl:propertyChainAxiom ( cmdm:hasBOMLine cmdm:bomChild ) ;
+    rdfs:label "직속 구성 아이템"@ko ; rdfs:comment "BOM 라인으로부터 추론되는 1단계 포함 관계."@ko .
+cmdm:isComponentOf a owl:ObjectProperty , owl:TransitiveProperty ; owl:inverseOf cmdm:hasComponent ; rdfs:label "상위 아이템(역전개)"@ko .
+
+cmdm:realizesJoint a owl:ObjectProperty ;
+    rdfs:domain cmdm:AssemblyDefinition ; rdfs:range cmdm:Joint ;
+    rdfs:label "관절 구현"@ko ; rdfs:comment "관절 조립품이 구현하는 관절(들). AX34_MODULE → J3, J4."@ko .
+cmdm:realizedBy a owl:ObjectProperty ; owl:inverseOf cmdm:realizesJoint ; rdfs:label "구현 조립품"@ko .
+
+cmdm:definedInFile a owl:ObjectProperty ;
+    rdfs:domain cmdm:ItemDefinition ; rdfs:range cmdm:CADModelFile ; rdfs:label "정의 CAD 파일"@ko .
+cmdm:hasDrawing a owl:ObjectProperty ; rdfs:domain cmdm:ItemDefinition ; rdfs:range cmdm:Drawing ; rdfs:label "도면"@ko .
+cmdm:hasBoundingBox a owl:ObjectProperty ; rdfs:range cmdm:BoundingBox ; rdfs:label "경계 상자"@ko .
+cmdm:supersedes a owl:ObjectProperty ; rdfs:domain cmdm:ItemDefinition ; rdfs:range cmdm:ItemDefinition ; rdfs:label "대체(이전 리비전)"@ko .
+cmdm:sharedVariantOf a owl:ObjectProperty , owl:SymmetricProperty ;
+    rdfs:domain cmdm:ItemDefinition ; rdfs:range cmdm:ItemDefinition ;
+    rdfs:label "유사 설계(파생)"@ko ; rdfs:comment "형상은 다르나 기능이 대응되는 모델 간 아이템(예: V4_AX1_CASE ↔ V7_AX1_CASE)."@ko .
+
+cmdm:designedBy a owl:ObjectProperty ; rdfs:domain cmdm:ItemDefinition ; rdfs:range cmdm:Person ; rdfs:label "설계자"@ko ; cmdm:stepEntity "DESIGNED_BY" .
+cmdm:checkedBy a owl:ObjectProperty ; rdfs:domain cmdm:ItemDefinition ; rdfs:range cmdm:Person ; rdfs:label "검도자"@ko ; cmdm:stepEntity "CHECKED_BY" .
+cmdm:approvedBy a owl:ObjectProperty ; rdfs:domain cmdm:ItemDefinition ; rdfs:range cmdm:Person ; rdfs:label "승인자"@ko ; cmdm:stepEntity "APPROVED_BY" .
+cmdm:owningOrganization a owl:ObjectProperty ; rdfs:range cmdm:Organization ; rdfs:label "소유 조직"@ko ; cmdm:stepEntity "PTC_ORGANIZATION_ID" .
+cmdm:exportedBy a owl:ObjectProperty ; rdfs:domain cmdm:CADModelFile ; rdfs:range cmdm:Agent ; rdfs:label "내보낸 사람"@ko ; cmdm:stepEntity "FILE_NAME.author" .
+cmdm:publishedBy a owl:ObjectProperty ; rdfs:domain cmdm:Document ; rdfs:range cmdm:Organization ; rdfs:label "발행 조직"@ko .
+cmdm:describesModel a owl:ObjectProperty ; rdfs:domain cmdm:Document ; rdfs:range cmdm:RobotModel ; rdfs:label "대상 모델"@ko .
+cmdm:rootItem a owl:ObjectProperty ; rdfs:domain cmdm:CADModelFile ; rdfs:range cmdm:AssemblyDefinition ; rdfs:label "최상위 아이템"@ko .
+
+# --- M3 ---
+cmdm:madeOf a owl:ObjectProperty ;
+    rdfs:domain cmdm:PartDefinition ; rdfs:range cmdm:Material ; rdfs:label "재질"@ko .
+cmdm:materialCategory a owl:ObjectProperty ;
+    rdfs:domain cmdm:Material ; rdfs:range cmdm:MaterialCategory ; rdfs:label "재질 분류"@ko .
+
+# --- M4 ---
+cmdm:hasJoint a owl:ObjectProperty ; rdfs:domain cmdm:RobotModel ; rdfs:range cmdm:Joint ; rdfs:label "관절 보유"@ko .
+cmdm:jointOf a owl:ObjectProperty , owl:FunctionalProperty ; owl:inverseOf cmdm:hasJoint ; rdfs:label "소속 모델"@ko .
+cmdm:jointRole a owl:ObjectProperty ; rdfs:domain cmdm:Joint ; rdfs:range cmdm:JointRole ; rdfs:label "관절 역할"@ko .
+cmdm:hasStopPerformance a owl:ObjectProperty ; rdfs:domain cmdm:Joint ; rdfs:range cmdm:StopPerformance ; rdfs:label "정지 성능"@ko .
+cmdm:hasToolFlange a owl:ObjectProperty ; rdfs:domain cmdm:RobotModel ; rdfs:range cmdm:ToolFlange ; rdfs:label "툴 플랜지"@ko .
+cmdm:hasSpecification a owl:ObjectProperty ; rdfs:range cmdm:TechnicalSpecification ; rdfs:label "사양"@ko .
+cmdm:hasMountingSpecification a owl:ObjectProperty ; rdfs:domain cmdm:RobotModel ; rdfs:range cmdm:MountingSpecification ; rdfs:label "고정 사양"@ko .
+cmdm:sourceDocument a owl:ObjectProperty ; rdfs:range cmdm:Document ; rdfs:label "출처 문서"@ko ;
+    rdfs:comment "사양·규칙·이슈 등의 근거 문서."@ko .
+cmdm:hasPose a owl:ObjectProperty ; rdfs:range cmdm:JointPose ; rdfs:label "자세"@ko .
+cmdm:packingPose a owl:ObjectProperty ; rdfs:subPropertyOf cmdm:hasPose ; rdfs:domain cmdm:RobotModel ; rdfs:label "포장 자세"@ko ; cmdm:manualSection "4.6" .
+
+# --- M5 ---
+cmdm:hasPort a owl:ObjectProperty ; rdfs:range cmdm:Port ; rdfs:label "포트 보유"@ko ;
+    rdfs:comment "RobotModel(툴 플랜지 포트) 또는 ControllerModel(단자대)의 인터페이스."@ko .
+cmdm:hasPin a owl:ObjectProperty ; rdfs:domain cmdm:Port ; rdfs:range cmdm:Pin ; rdfs:label "핀"@ko .
+cmdm:realizedByItem a owl:ObjectProperty ; rdfs:domain cmdm:Port ; rdfs:range cmdm:ItemDefinition ; rdfs:label "구현 부품(CAD)"@ko ;
+    rdfs:comment "포트를 물리적으로 구현하는 CAD 아이템(예: TIO_CONN_8P)."@ko .
+cmdm:usesProtocol a owl:ObjectProperty ; rdfs:range cmdm:CommunicationProtocol ; rdfs:label "통신 프로토콜"@ko .
+cmdm:hasChannelGroup a owl:ObjectProperty ; rdfs:range cmdm:IOChannelGroup ; rdfs:label "I/O 채널 그룹"@ko .
+cmdm:ioCategory a owl:ObjectProperty ; rdfs:range cmdm:IOCategory ; rdfs:label "I/O 분류"@ko .
+cmdm:signalType a owl:ObjectProperty ; rdfs:range cmdm:SignalType ; rdfs:label "신호 형식"@ko .
+cmdm:assignedFunction a owl:ObjectProperty ; rdfs:range cmdm:IOFunction ; rdfs:label "할당 기능"@ko .
+cmdm:onPin a owl:ObjectProperty ; rdfs:domain cmdm:IOChannel ; rdfs:range cmdm:Pin ; rdfs:label "물리 핀"@ko .
+cmdm:hasChannel a owl:ObjectProperty ; rdfs:range cmdm:IOChannel ; rdfs:label "I/O 채널"@ko .
+cmdm:hasModbusSignal a owl:ObjectProperty ; rdfs:domain cmdm:ModbusDevice ; rdfs:range cmdm:ModbusSignal ; rdfs:label "Modbus I/O"@ko .
+cmdm:hasEncoder a owl:ObjectProperty ; rdfs:domain cmdm:Conveyor ; rdfs:range cmdm:Encoder ; rdfs:label "엔코더"@ko .
+cmdm:triggerInput a owl:ObjectProperty ; rdfs:range cmdm:IOChannel ; rdfs:label "트리거 입력"@ko .
+cmdm:directionLine a owl:ObjectProperty ; rdfs:domain cmdm:Conveyor ; rdfs:range cmdm:LineCoordinate ; rdfs:label "이동 방향 라인"@ko .
+
+# --- M6 ---
+cmdm:hasSafetyFunction a owl:ObjectProperty ; rdfs:range cmdm:SafetyFunction ; rdfs:label "안전 기능"@ko .
+cmdm:stopCategory a owl:ObjectProperty ; rdfs:range cmdm:StopCategory ; rdfs:label "정지 카테고리"@ko .
+cmdm:performanceLevel a owl:ObjectProperty ; rdfs:range cmdm:PerformanceLevel ; rdfs:label "성능 수준"@ko .
+cmdm:conformsTo a owl:ObjectProperty ; rdfs:range cmdm:Standard ; rdfs:label "준수 규격"@ko .
+cmdm:hasCertification a owl:ObjectProperty ; rdfs:range cmdm:Certification ; rdfs:label "보유 인증"@ko .
+cmdm:hasWarranty a owl:ObjectProperty ; rdfs:range cmdm:Warranty ; rdfs:label "보증 조건"@ko .
+cmdm:hasSafetyConfiguration a owl:ObjectProperty ; rdfs:domain cmdm:RobotSystem ; rdfs:range cmdm:SafetyConfiguration ; rdfs:label "적용 안전 설정"@ko .
+cmdm:hasMotionLimit a owl:ObjectProperty ; rdfs:domain cmdm:SafetyConfiguration ; rdfs:range cmdm:MotionLimitSetting ; rdfs:label "동작 제한"@ko .
+cmdm:hasJointLimitSetting a owl:ObjectProperty ; rdfs:domain cmdm:MotionLimitSetting ; rdfs:range cmdm:JointLimitSetting ; rdfs:label "관절 제한"@ko .
+cmdm:limitsJoint a owl:ObjectProperty ; rdfs:domain cmdm:JointLimitSetting ; rdfs:range cmdm:Joint ; rdfs:label "제한 대상 관절"@ko .
+cmdm:hasBoundary a owl:ObjectProperty ; rdfs:domain cmdm:SafetyConfiguration ; rdfs:range cmdm:SafetyBoundary ; rdfs:label "안전 경계"@ko .
+cmdm:boundaryShape a owl:ObjectProperty ; rdfs:domain cmdm:ToolBoundary ; rdfs:range cmdm:BoundaryShape ; rdfs:label "경계 형상"@ko .
+cmdm:boundaryForTCP a owl:ObjectProperty ; rdfs:domain cmdm:ToolBoundary ; rdfs:range cmdm:TCPProfile ; rdfs:label "대상 TCP"@ko .
+cmdm:hasDualIO a owl:ObjectProperty ; rdfs:domain cmdm:SafetyConfiguration ; rdfs:range cmdm:DualIOAssignment ; rdfs:label "이중 I/O"@ko .
+cmdm:dualChannel a owl:ObjectProperty ; rdfs:domain cmdm:DualIOAssignment ; rdfs:range cmdm:IOChannel ; rdfs:label "이중화 채널"@ko .
+cmdm:identifiesHazard a owl:ObjectProperty ; rdfs:domain cmdm:RiskAssessment ; rdfs:range cmdm:Hazard ; rdfs:label "식별 위험"@ko .
+cmdm:assessedSystem a owl:ObjectProperty ; rdfs:domain cmdm:RiskAssessment ; rdfs:range cmdm:RobotSystem ; rdfs:label "평가 대상"@ko .
+
+# --- M7 ---
+cmdm:runsSoftware a owl:ObjectProperty ; rdfs:range cmdm:SoftwareRelease ; rdfs:label "설치 SW 버전"@ko .
+cmdm:hasUserAccount a owl:ObjectProperty ; rdfs:range cmdm:UserAccount ; rdfs:label "사용자 계정"@ko .
+cmdm:hasRole a owl:ObjectProperty ; rdfs:domain cmdm:UserAccount ; rdfs:range cmdm:UserRole ; rdfs:label "권한"@ko .
+cmdm:accountOf a owl:ObjectProperty ; rdfs:domain cmdm:UserAccount ; rdfs:range cmdm:Person ; rdfs:label "계정 소유자"@ko .
+cmdm:hasMountingConfiguration a owl:ObjectProperty ; rdfs:domain cmdm:RobotSystem ; rdfs:range cmdm:MountingConfiguration ; rdfs:label "마운팅 설정"@ko .
+cmdm:hasTCPProfile a owl:ObjectProperty ; rdfs:domain cmdm:RobotSystem ; rdfs:range cmdm:TCPProfile ; rdfs:label "TCP 프로파일"@ko .
+cmdm:activeTCP a owl:ObjectProperty ; rdfs:subPropertyOf cmdm:hasTCPProfile ; rdfs:label "사용 중 TCP"@ko .
+cmdm:forTool a owl:ObjectProperty ; rdfs:domain cmdm:TCPProfile ; rdfs:range cmdm:EndEffector ; rdfs:label "대상 툴"@ko .
+cmdm:hasCoordinate a owl:ObjectProperty ; rdfs:range cmdm:CoordinateDefinition ; rdfs:label "사용자 좌표"@ko .
+cmdm:definingPoint a owl:ObjectProperty ; rdfs:domain cmdm:CoordinateDefinition ; rdfs:range cmdm:PointCoordinate ; rdfs:label "구성 포인트"@ko .
+cmdm:hasVariable a owl:ObjectProperty ; rdfs:range cmdm:Variable ; rdfs:label "변수"@ko .
+cmdm:variableType a owl:ObjectProperty ; rdfs:domain cmdm:Variable ; rdfs:range cmdm:VariableType ; rdfs:label "변수 타입"@ko .
+cmdm:hasProgram a owl:ObjectProperty ; rdfs:domain cmdm:RobotSystem ; rdfs:range cmdm:RobotProgram ; rdfs:label "프로그램"@ko .
+cmdm:defaultProgram a owl:ObjectProperty ; rdfs:subPropertyOf cmdm:hasProgram ; rdfs:label "기본(부팅) 프로그램"@ko .
+cmdm:hasCommand a owl:ObjectProperty ; rdfs:range cmdm:ProgramCommand ; rdfs:label "명령 포함"@ko ;
+    rdfs:comment "프로그램 또는 블록 명령(If/Loop/Folder)이 하위 명령을 포함."@ko .
+cmdm:nextCommand a owl:ObjectProperty ; rdfs:domain cmdm:ProgramCommand ; rdfs:range cmdm:ProgramCommand ; rdfs:label "다음 명령"@ko .
+cmdm:calls a owl:ObjectProperty ; rdfs:domain cmdm:SubProgramCall ; rdfs:range cmdm:SubProgram ; rdfs:label "호출 서브프로그램"@ko .
+cmdm:targetPosition a owl:ObjectProperty ; rdfs:domain cmdm:MoveCommand ; rdfs:label "목표 위치"@ko ;
+    rdfs:comment "고정 좌표(PointCoordinate), 상대 이동값, 또는 Position 변수."@ko .
+cmdm:referenceFrame a owl:ObjectProperty ; rdfs:range cmdm:CoordinateDefinition ; rdfs:label "기준 좌표계"@ko .
+cmdm:usesDevice a owl:ObjectProperty ; rdfs:domain cmdm:ProgramCommand ; rdfs:range cmdm:ExternalDevice ; rdfs:label "사용 장비"@ko .
+cmdm:patternType a owl:ObjectProperty ; rdfs:domain cmdm:PatternCommand ; rdfs:range cmdm:PatternType ; rdfs:label "패턴 종류"@ko .
+cmdm:includesSettingCategory a owl:ObjectProperty ; rdfs:domain cmdm:ConfigurationBackup ; rdfs:range cmdm:SettingCategory ; rdfs:label "포함 설정 항목"@ko .
+
+# --- M8 ---
+cmdm:observedAsset a owl:ObjectProperty ; rdfs:domain cmdm:Observation ; rdfs:range cmdm:PhysicalAsset ; rdfs:label "관측 대상"@ko .
+cmdm:observedJoint a owl:ObjectProperty ; rdfs:domain cmdm:JointStateObservation ; rdfs:range cmdm:Joint ; rdfs:label "관측 관절"@ko .
+cmdm:observedChannel a owl:ObjectProperty ; rdfs:domain cmdm:IOStateObservation ; rdfs:range cmdm:IOChannel ; rdfs:label "관측 채널"@ko .
+cmdm:stateDuring a owl:ObjectProperty ; rdfs:range cmdm:OperatingState ; rdfs:label "당시 운영 상태"@ko .
+cmdm:eventAsset a owl:ObjectProperty ; rdfs:domain cmdm:Event ; rdfs:range cmdm:PhysicalAsset ; rdfs:label "발생 자산"@ko .
+cmdm:hasErrorCode a owl:ObjectProperty ; rdfs:domain cmdm:ErrorEvent ; rdfs:range cmdm:ErrorCode ; rdfs:label "에러 코드"@ko .
+cmdm:duringProgram a owl:ObjectProperty ; rdfs:domain cmdm:Event ; rdfs:range cmdm:RobotProgram ; rdfs:label "실행 중 프로그램"@ko .
+cmdm:affectedJoint a owl:ObjectProperty ; rdfs:domain cmdm:Event ; rdfs:range cmdm:Joint ; rdfs:label "관련 관절"@ko .
+cmdm:inspects a owl:ObjectProperty ; rdfs:domain cmdm:MaintenancePlanItem ; rdfs:label "점검 대상"@ko ;
+    rdfs:comment "점검 대상 구성(RobotModel, ControllerModel, ItemDefinition 등)."@ko .
+cmdm:followsPlan a owl:ObjectProperty ; rdfs:domain cmdm:MaintenanceRecord ; rdfs:range cmdm:MaintenancePlanItem ; rdfs:label "근거 점검 항목"@ko .
+cmdm:performedBy a owl:ObjectProperty ; rdfs:range cmdm:Agent ; rdfs:label "수행자"@ko .
+
+# --- M9 ---
+cmdm:affectsItem a owl:ObjectProperty ; rdfs:domain cmdm:DataQualityIssue ; rdfs:label "대상 데이터"@ko .
+cmdm:issueType a owl:ObjectProperty ; rdfs:domain cmdm:DataQualityIssue ; rdfs:range cmdm:IssueType ; rdfs:label "이슈 유형"@ko .
+cmdm:severity a owl:ObjectProperty ; rdfs:domain cmdm:DataQualityIssue ; rdfs:range cmdm:Severity ; rdfs:label "심각도"@ko .
+cmdm:memberOf a owl:ObjectProperty ; rdfs:domain cmdm:Person ; rdfs:range cmdm:Organization ; rdfs:label "소속"@ko .
+cmdm:manufacturer a owl:ObjectProperty ; rdfs:range cmdm:Organization ; rdfs:label "제조사"@ko .
+
+#################################################################
+#  Datatype properties
+#################################################################
+
+# --- 공통 식별 ---
+cmdm:code a owl:DatatypeProperty ; rdfs:range xsd:string ; rdfs:label "코드/식별자"@ko .
+cmdm:name a owl:DatatypeProperty ; rdfs:range xsd:string ; rdfs:label "이름"@ko .
+cmdm:description a owl:DatatypeProperty ; rdfs:range xsd:string ; rdfs:label "설명"@ko .
+cmdm:serialNumber a owl:DatatypeProperty , owl:FunctionalProperty ; rdfs:domain cmdm:PhysicalAsset ; rdfs:range xsd:string ; rdfs:label "시리얼 번호"@ko .
+cmdm:isSampleData a owl:DatatypeProperty ; rdfs:range xsd:boolean ; rdfs:label "예시 데이터 여부"@ko .
+
+# --- M1 ---
+cmdm:quantity a owl:DatatypeProperty , owl:FunctionalProperty ; rdfs:range xsd:positiveInteger ; rdfs:label "수량"@ko ;
+    rdfs:comment "BOMLine 또는 SupplyItem의 수량."@ko .
+cmdm:installationDate a owl:DatatypeProperty ; rdfs:range xsd:date ; rdfs:label "설치(인도)일"@ko .
+
+# --- M2 : 아이템 속성 (STEP user-defined attribute 대응) ---
+cmdm:itemCode a owl:DatatypeProperty , owl:FunctionalProperty ; rdfs:subPropertyOf cmdm:code ;
+    rdfs:domain cmdm:ItemDefinition ; rdfs:range xsd:string ; rdfs:label "CAD 아이템 코드"@ko ; cmdm:stepEntity "PRODUCT.id" .
+cmdm:partName a owl:DatatypeProperty ; rdfs:domain cmdm:ItemDefinition ; rdfs:range xsd:string ; rdfs:label "품명"@ko ; cmdm:stepEntity "PART_NAME" .
+cmdm:partNumber a owl:DatatypeProperty ; rdfs:domain cmdm:ItemDefinition ; rdfs:range xsd:string ; rdfs:label "PLM 품번"@ko ; cmdm:stepEntity "PART_NO" .
+cmdm:drawingNumber a owl:DatatypeProperty ; rdfs:domain cmdm:ItemDefinition ; rdfs:range xsd:string ; rdfs:label "도면/규격 번호"@ko ; cmdm:stepEntity "SPEC" .
+cmdm:catalogNumber a owl:DatatypeProperty ; rdfs:domain cmdm:ItemDefinition ; rdfs:range xsd:string ; rdfs:label "구매 카탈로그 번호"@ko ; cmdm:stepEntity "PN" ;
+    rdfs:comment "표준 구매품의 공급사 형번(예: STD-SCR-M4-12, CBL-M8-8P-05)."@ko .
+cmdm:revision a owl:DatatypeProperty ; rdfs:domain cmdm:ItemDefinition ; rdfs:range xsd:string ; rdfs:label "리비전"@ko ; cmdm:stepEntity "REV_NO / 이름의 _R1" .
+cmdm:projectName a owl:DatatypeProperty ; rdfs:range xsd:string ; rdfs:label "프로젝트명"@ko ; cmdm:stepEntity "PJT_NAME" .
+cmdm:assemblyName a owl:DatatypeProperty ; rdfs:range xsd:string ; rdfs:label "적용 조립명"@ko ; cmdm:stepEntity "ASSY_NAME" .
+cmdm:designedDate a owl:DatatypeProperty ; rdfs:range xsd:string ; rdfs:label "설계일(원문)"@ko ; cmdm:stepEntity "DESIGNED_DATE" .
+cmdm:checkedDate a owl:DatatypeProperty ; rdfs:range xsd:string ; rdfs:label "검도일(원문)"@ko ; cmdm:stepEntity "CHECKED_DATE" .
+cmdm:approvedDate a owl:DatatypeProperty ; rdfs:range xsd:string ; rdfs:label "승인일(원문)"@ko ; cmdm:stepEntity "APPROVED_DATE" .
+cmdm:releasedDate a owl:DatatypeProperty ; rdfs:range xsd:date ; rdfs:label "릴리즈일"@ko ; cmdm:stepEntity "RELEASED_DATE" .
+cmdm:nativeFileName a owl:DatatypeProperty ; rdfs:range xsd:string ; rdfs:label "원본 CAD 파일명"@ko ; cmdm:stepEntity "PTC_COMMON_NAME" .
+cmdm:threadSize a owl:DatatypeProperty ; rdfs:domain cmdm:Fastener ; rdfs:range xsd:string ; rdfs:label "나사 호칭"@ko ; cmdm:stepEntity "M" .
+cmdm:strengthClass a owl:DatatypeProperty ; rdfs:domain cmdm:Fastener ; rdfs:range xsd:string ; rdfs:label "강도 구분"@ko ; cmdm:stepEntity "SC (예: A2-70)" .
+cmdm:volume a owl:DatatypeProperty ; rdfs:domain cmdm:ItemDefinition ; rdfs:range xsd:decimal ; rdfs:label "부피"@ko ; cmdm:unit unit:MilliM3 ; cmdm:stepEntity "MEASURE_REPRESENTATION_ITEM('volume measure')" .
+cmdm:surfaceArea a owl:DatatypeProperty ; rdfs:domain cmdm:ItemDefinition ; rdfs:range xsd:decimal ; rdfs:label "표면적"@ko ; cmdm:unit unit:MilliM2 ; cmdm:stepEntity "MEASURE_REPRESENTATION_ITEM('surface area measure')" .
+cmdm:estimatedMass a owl:DatatypeProperty ; rdfs:domain cmdm:ItemDefinition ; rdfs:range xsd:decimal ; rdfs:label "추정 질량(부피×밀도)"@ko ; cmdm:unit unit:KiloGM .
+
+cmdm:minX a owl:DatatypeProperty ; rdfs:domain cmdm:BoundingBox ; rdfs:range xsd:decimal ; cmdm:unit unit:MilliM .
+cmdm:maxX a owl:DatatypeProperty ; rdfs:domain cmdm:BoundingBox ; rdfs:range xsd:decimal ; cmdm:unit unit:MilliM .
+cmdm:minY a owl:DatatypeProperty ; rdfs:domain cmdm:BoundingBox ; rdfs:range xsd:decimal ; cmdm:unit unit:MilliM .
+cmdm:maxY a owl:DatatypeProperty ; rdfs:domain cmdm:BoundingBox ; rdfs:range xsd:decimal ; cmdm:unit unit:MilliM .
+cmdm:minZ a owl:DatatypeProperty ; rdfs:domain cmdm:BoundingBox ; rdfs:range xsd:decimal ; cmdm:unit unit:MilliM .
+cmdm:maxZ a owl:DatatypeProperty ; rdfs:domain cmdm:BoundingBox ; rdfs:range xsd:decimal ; cmdm:unit unit:MilliM .
+
+# --- 문서 / CAD 파일 ---
+cmdm:fileName a owl:DatatypeProperty ; rdfs:domain cmdm:Document ; rdfs:range xsd:string ; rdfs:label "파일명"@ko .
+cmdm:documentVersion a owl:DatatypeProperty ; rdfs:domain cmdm:Document ; rdfs:range xsd:string ; rdfs:label "문서 버전"@ko .
+cmdm:issuedDate a owl:DatatypeProperty ; rdfs:domain cmdm:Document ; rdfs:range xsd:date ; rdfs:label "발행/생성일"@ko .
+cmdm:stepSchema a owl:DatatypeProperty ; rdfs:domain cmdm:CADModelFile ; rdfs:range xsd:string ; rdfs:label "STEP 스키마"@ko ; cmdm:stepEntity "FILE_SCHEMA" .
+cmdm:applicationProtocol a owl:DatatypeProperty ; rdfs:domain cmdm:CADModelFile ; rdfs:range xsd:string ; rdfs:label "응용 프로토콜(AP)"@ko .
+cmdm:authoringSystem a owl:DatatypeProperty ; rdfs:domain cmdm:CADModelFile ; rdfs:range xsd:string ; rdfs:label "작성 CAD 시스템"@ko ; cmdm:stepEntity "FILE_NAME.originating_system" .
+cmdm:lengthUnit a owl:DatatypeProperty ; rdfs:domain cmdm:CADModelFile ; rdfs:range xsd:string ; rdfs:label "길이 단위"@ko .
+cmdm:entityCount a owl:DatatypeProperty ; rdfs:domain cmdm:CADModelFile ; rdfs:range xsd:nonNegativeInteger ; rdfs:label "STEP 엔티티 수"@ko .
+cmdm:solidBodyCount a owl:DatatypeProperty ; rdfs:domain cmdm:CADModelFile ; rdfs:range xsd:nonNegativeInteger ; rdfs:label "솔리드(B-rep) 수"@ko ; cmdm:stepEntity "MANIFOLD_SOLID_BREP" .
+cmdm:faceCount a owl:DatatypeProperty ; rdfs:domain cmdm:CADModelFile ; rdfs:range xsd:nonNegativeInteger ; rdfs:label "면(Face) 수"@ko ; cmdm:stepEntity "ADVANCED_FACE" .
+cmdm:fileSizeBytes a owl:DatatypeProperty ; rdfs:domain cmdm:Document ; rdfs:range xsd:nonNegativeInteger ; rdfs:label "파일 크기"@ko ; cmdm:unit unit:BYTE .
+
+# --- M3 ---
+cmdm:density a owl:DatatypeProperty ; rdfs:domain cmdm:Material ; rdfs:range xsd:decimal ; rdfs:label "밀도(대표값)"@ko ; cmdm:unit unit:GM-PER-CentiM3 .
+cmdm:materialStandard a owl:DatatypeProperty ; rdfs:domain cmdm:Material ; rdfs:range xsd:string ; rdfs:label "재질 규격"@ko .
+
+# --- M4 : 모델 사양 ---
+cmdm:degreesOfFreedom a owl:DatatypeProperty ; rdfs:domain cmdm:TechnicalSpecification ; rdfs:range xsd:positiveInteger ; rdfs:label "자유도"@ko .
+cmdm:payload a owl:DatatypeProperty ; rdfs:domain cmdm:TechnicalSpecification ; rdfs:range xsd:decimal ; rdfs:label "가반 중량"@ko ; cmdm:unit unit:KiloGM .
+cmdm:reach a owl:DatatypeProperty ; rdfs:domain cmdm:TechnicalSpecification ; rdfs:range xsd:decimal ; rdfs:label "작업 반경"@ko ; cmdm:unit unit:MilliM .
+cmdm:innerUnreachableRadius a owl:DatatypeProperty ; rdfs:domain cmdm:TechnicalSpecification ; rdfs:range xsd:decimal ; rdfs:label "도달 불가 내측 반경"@ko ; cmdm:unit unit:MilliM ; cmdm:manualSection "4.7" .
+cmdm:repeatability a owl:DatatypeProperty ; rdfs:domain cmdm:TechnicalSpecification ; rdfs:range xsd:decimal ; rdfs:label "반복정밀도(±)"@ko ; cmdm:unit unit:MilliM .
+cmdm:armMass a owl:DatatypeProperty ; rdfs:domain cmdm:TechnicalSpecification ; rdfs:range xsd:decimal ; rdfs:label "로봇 암 무게"@ko ; cmdm:unit unit:KiloGM .
+cmdm:controllerMass a owl:DatatypeProperty ; rdfs:domain cmdm:TechnicalSpecification ; rdfs:range xsd:decimal ; rdfs:label "컨트롤러 무게"@ko ; cmdm:unit unit:KiloGM .
+cmdm:footprint a owl:DatatypeProperty ; rdfs:domain cmdm:TechnicalSpecification ; rdfs:range xsd:string ; rdfs:label "밑넓이"@ko .
+cmdm:operatingTempMin a owl:DatatypeProperty ; rdfs:domain cmdm:TechnicalSpecification ; rdfs:range xsd:decimal ; rdfs:label "사용 온도 하한"@ko ; cmdm:unit unit:DEG_C .
+cmdm:operatingTempMax a owl:DatatypeProperty ; rdfs:domain cmdm:TechnicalSpecification ; rdfs:range xsd:decimal ; rdfs:label "사용 온도 상한"@ko ; cmdm:unit unit:DEG_C .
+cmdm:warmUpBelowTemp a owl:DatatypeProperty ; rdfs:domain cmdm:TechnicalSpecification ; rdfs:range xsd:decimal ; rdfs:label "워밍업 권장 온도(이하)"@ko ; cmdm:unit unit:DEG_C .
+cmdm:humidityRange a owl:DatatypeProperty ; rdfs:domain cmdm:TechnicalSpecification ; rdfs:range xsd:string ; rdfs:label "사용 습도"@ko .
+cmdm:ipRatingArm a owl:DatatypeProperty ; rdfs:domain cmdm:TechnicalSpecification ; rdfs:range xsd:string ; rdfs:label "IP 등급(암)"@ko .
+cmdm:ipRatingController a owl:DatatypeProperty ; rdfs:domain cmdm:TechnicalSpecification ; rdfs:range xsd:string ; rdfs:label "IP 등급(컨트롤러)"@ko .
+cmdm:ipRatingPendant a owl:DatatypeProperty ; rdfs:domain cmdm:TechnicalSpecification ; rdfs:range xsd:string ; rdfs:label "IP 등급(TP)"@ko .
+cmdm:supplyVoltage a owl:DatatypeProperty ; rdfs:range xsd:string ; rdfs:label "입력 전원"@ko .
+cmdm:supplyFrequency a owl:DatatypeProperty ; rdfs:range xsd:string ; rdfs:label "입력 주파수"@ko .
+cmdm:externalFuse a owl:DatatypeProperty ; rdfs:range xsd:string ; rdfs:label "외부 전원 퓨즈"@ko .
+cmdm:armCableLength a owl:DatatypeProperty ; rdfs:range xsd:decimal ; rdfs:label "암-컨트롤러 케이블 길이"@ko ; cmdm:unit unit:M .
+cmdm:pendantCableLength a owl:DatatypeProperty ; rdfs:range xsd:decimal ; rdfs:label "TP-컨트롤러 케이블 길이"@ko ; cmdm:unit unit:M .
+cmdm:toolIOPower a owl:DatatypeProperty ; rdfs:range xsd:string ; rdfs:label "툴 I/O 전원"@ko .
+cmdm:controllerIOPower a owl:DatatypeProperty ; rdfs:range xsd:string ; rdfs:label "컨트롤러 I/O 전원"@ko .
+cmdm:flangeStandard a owl:DatatypeProperty ; rdfs:domain cmdm:ToolFlange ; rdfs:range xsd:string ; rdfs:label "플랜지 규격"@ko .
+
+cmdm:boltSize a owl:DatatypeProperty ; rdfs:domain cmdm:MountingSpecification ; rdfs:range xsd:string ; rdfs:label "고정 볼트"@ko .
+cmdm:boltLength a owl:DatatypeProperty ; rdfs:domain cmdm:MountingSpecification ; rdfs:range xsd:decimal ; rdfs:label "볼트 길이"@ko ; cmdm:unit unit:MilliM .
+cmdm:tighteningTorque a owl:DatatypeProperty ; rdfs:domain cmdm:MountingSpecification ; rdfs:range xsd:decimal ; rdfs:label "체결 토크"@ko ; cmdm:unit unit:N-M .
+cmdm:locatingPinDiameter a owl:DatatypeProperty ; rdfs:domain cmdm:MountingSpecification ; rdfs:range xsd:decimal ; rdfs:label "위치결정 핀 지름"@ko ; cmdm:unit unit:MilliM .
+cmdm:boltCount a owl:DatatypeProperty ; rdfs:domain cmdm:MountingSpecification ; rdfs:range xsd:positiveInteger ; rdfs:label "볼트 수"@ko .
+
+# --- 관절 ---
+cmdm:jointIndex a owl:DatatypeProperty , owl:FunctionalProperty ; rdfs:domain cmdm:Joint ; rdfs:range xsd:positiveInteger ; rdfs:label "관절 번호"@ko .
+cmdm:minAngle a owl:DatatypeProperty ; rdfs:range xsd:decimal ; rdfs:label "최소 각도"@ko ; cmdm:unit unit:DEG .
+cmdm:maxAngle a owl:DatatypeProperty ; rdfs:range xsd:decimal ; rdfs:label "최대 각도"@ko ; cmdm:unit unit:DEG .
+cmdm:continuousRotation a owl:DatatypeProperty ; rdfs:domain cmdm:Joint ; rdfs:range xsd:boolean ; rdfs:label "무한 회전"@ko .
+cmdm:maxJointSpeed a owl:DatatypeProperty ; rdfs:range xsd:decimal ; rdfs:label "최대 관절 속도"@ko ; cmdm:unit unit:DEG-PER-SEC .
+cmdm:stopDistance a owl:DatatypeProperty ; rdfs:domain cmdm:StopPerformance ; rdfs:range xsd:decimal ; rdfs:label "정지 거리"@ko ; cmdm:unit unit:DEG .
+cmdm:stopTime a owl:DatatypeProperty ; rdfs:domain cmdm:StopPerformance ; rdfs:range xsd:decimal ; rdfs:label "정지 시간"@ko ; cmdm:unit unit:SEC .
+cmdm:brakeEngageDelay a owl:DatatypeProperty ; rdfs:domain cmdm:StopPerformance ; rdfs:range xsd:decimal ; rdfs:label "브레이크 체결 지연"@ko ; cmdm:unit unit:SEC .
+cmdm:j1 a owl:DatatypeProperty ; rdfs:domain cmdm:JointPose ; rdfs:range xsd:decimal ; cmdm:unit unit:DEG .
+cmdm:j2 a owl:DatatypeProperty ; rdfs:domain cmdm:JointPose ; rdfs:range xsd:decimal ; cmdm:unit unit:DEG .
+cmdm:j3 a owl:DatatypeProperty ; rdfs:domain cmdm:JointPose ; rdfs:range xsd:decimal ; cmdm:unit unit:DEG .
+cmdm:j4 a owl:DatatypeProperty ; rdfs:domain cmdm:JointPose ; rdfs:range xsd:decimal ; cmdm:unit unit:DEG .
+cmdm:j5 a owl:DatatypeProperty ; rdfs:domain cmdm:JointPose ; rdfs:range xsd:decimal ; cmdm:unit unit:DEG .
+cmdm:j6 a owl:DatatypeProperty ; rdfs:domain cmdm:JointPose ; rdfs:range xsd:decimal ; cmdm:unit unit:DEG .
+
+# --- M5 ---
+cmdm:pinNumber a owl:DatatypeProperty ; rdfs:domain cmdm:Pin ; rdfs:range xsd:positiveInteger ; rdfs:label "핀 번호"@ko .
+cmdm:signalName a owl:DatatypeProperty ; rdfs:domain cmdm:Pin ; rdfs:range xsd:string ; rdfs:label "신호명"@ko .
+cmdm:wireColor a owl:DatatypeProperty ; rdfs:domain cmdm:Pin ; rdfs:range xsd:string ; rdfs:label "선 색상"@ko .
+cmdm:cableSpec a owl:DatatypeProperty ; rdfs:domain cmdm:Port ; rdfs:range xsd:string ; rdfs:label "대응 케이블/커넥터 형번"@ko .
+cmdm:channelCount a owl:DatatypeProperty ; rdfs:domain cmdm:IOChannelGroup ; rdfs:range xsd:nonNegativeInteger ; rdfs:label "채널 수"@ko .
+cmdm:direction a owl:DatatypeProperty ; rdfs:range xsd:string ; rdfs:label "방향(Input/Output)"@ko .
+cmdm:signalKind a owl:DatatypeProperty ; rdfs:range xsd:string ; rdfs:label "신호 종류(Digital/Analog)"@ko .
+cmdm:channelIndex a owl:DatatypeProperty ; rdfs:domain cmdm:IOChannel ; rdfs:range xsd:nonNegativeInteger ; rdfs:label "채널 번호"@ko .
+cmdm:ratedVoltage a owl:DatatypeProperty ; rdfs:range xsd:decimal ; rdfs:label "정격 전압"@ko ; cmdm:unit unit:V .
+cmdm:maxCurrent a owl:DatatypeProperty ; rdfs:range xsd:decimal ; rdfs:label "최대 전류"@ko ; cmdm:unit unit:A .
+cmdm:resolutionBits a owl:DatatypeProperty ; rdfs:range xsd:positiveInteger ; rdfs:label "분해능(비트)"@ko .
+cmdm:ipAddress a owl:DatatypeProperty ; rdfs:range xsd:string ; rdfs:label "IP 주소"@ko .
+cmdm:slaveId a owl:DatatypeProperty ; rdfs:domain cmdm:ModbusDevice ; rdfs:range xsd:nonNegativeInteger ; rdfs:label "슬레이브 ID"@ko .
+cmdm:signalAddress a owl:DatatypeProperty ; rdfs:domain cmdm:ModbusSignal ; rdfs:range xsd:nonNegativeInteger ; rdfs:label "Signal Address"@ko .
+cmdm:modbusSignalType a owl:DatatypeProperty ; rdfs:domain cmdm:ModbusSignal ; rdfs:range xsd:string ; rdfs:label "Modbus I/O 종류"@ko ;
+    rdfs:comment "DigitalInput / DigitalOutput / RegisterInput / RegisterOutput."@ko .
+cmdm:updateRate a owl:DatatypeProperty ; rdfs:domain cmdm:ModbusSignal ; rdfs:range xsd:decimal ; rdfs:label "업데이트 주기"@ko ; cmdm:unit unit:HZ .
+cmdm:encoderType a owl:DatatypeProperty ; rdfs:domain cmdm:Encoder ; rdfs:range xsd:string ; rdfs:label "엔코더 타입"@ko .
+cmdm:encoderResolution a owl:DatatypeProperty ; rdfs:domain cmdm:Encoder ; rdfs:range xsd:decimal ; rdfs:label "엔코더 레졸루션"@ko .
+cmdm:encoderChannel a owl:DatatypeProperty ; rdfs:domain cmdm:Encoder ; rdfs:range xsd:positiveInteger ; rdfs:label "엔코더 채널"@ko .
+cmdm:distancePerRevolution a owl:DatatypeProperty ; rdfs:domain cmdm:Encoder ; rdfs:range xsd:decimal ; rdfs:label "회전당 이동거리"@ko ; cmdm:unit unit:MilliM .
+cmdm:conveyorSpeed a owl:DatatypeProperty ; rdfs:range xsd:decimal ; rdfs:label "컨베이어 속도"@ko ; cmdm:unit unit:MilliM-PER-SEC .
+cmdm:positionOffset a owl:DatatypeProperty ; rdfs:range xsd:decimal ; rdfs:label "포지션 오프셋"@ko ; cmdm:unit unit:MilliM .
+
+# --- M6 ---
+cmdm:crc a owl:DatatypeProperty ; rdfs:domain cmdm:SafetyConfiguration ; rdfs:range xsd:string ; rdfs:label "안전설정 CRC"@ko .
+cmdm:appliedAt a owl:DatatypeProperty ; rdfs:range xsd:dateTime ; rdfs:label "적용 시각"@ko .
+cmdm:safetyEnabled a owl:DatatypeProperty ; rdfs:domain cmdm:SafetyConfiguration ; rdfs:range xsd:boolean ; rdfs:label "안전설정 사용"@ko .
+cmdm:presetLevel a owl:DatatypeProperty ; rdfs:domain cmdm:MotionLimitSetting ; rdfs:range xsd:string ; rdfs:label "프리셋"@ko .
+cmdm:torqueLimit a owl:DatatypeProperty ; rdfs:domain cmdm:MotionLimitSetting ; rdfs:range xsd:decimal ; rdfs:label "토크 제한"@ko ; cmdm:unit unit:N-M .
+cmdm:forceLimit a owl:DatatypeProperty ; rdfs:domain cmdm:MotionLimitSetting ; rdfs:range xsd:decimal ; rdfs:label "포스 제한"@ko ; cmdm:unit unit:N .
+cmdm:tcpSpeedLimit a owl:DatatypeProperty ; rdfs:domain cmdm:MotionLimitSetting ; rdfs:range xsd:decimal ; rdfs:label "TCP 속도 제한"@ko ; cmdm:unit unit:MilliM-PER-SEC .
+cmdm:reducedModeSpeed a owl:DatatypeProperty ; rdfs:domain cmdm:MotionLimitSetting ; rdfs:range xsd:decimal ; rdfs:label "감속 모드 속도"@ko ; cmdm:unit unit:MilliM-PER-SEC .
+cmdm:collisionMitigation a owl:DatatypeProperty ; rdfs:domain cmdm:MotionLimitSetting ; rdfs:range xsd:boolean ; rdfs:label "충돌 완화(Enable)"@ko .
+cmdm:centerX a owl:DatatypeProperty ; rdfs:range xsd:decimal ; cmdm:unit unit:MilliM .
+cmdm:centerY a owl:DatatypeProperty ; rdfs:range xsd:decimal ; cmdm:unit unit:MilliM .
+cmdm:centerZ a owl:DatatypeProperty ; rdfs:range xsd:decimal ; cmdm:unit unit:MilliM .
+cmdm:normalX a owl:DatatypeProperty ; rdfs:domain cmdm:WorkspaceBoundary ; rdfs:range xsd:decimal .
+cmdm:normalY a owl:DatatypeProperty ; rdfs:domain cmdm:WorkspaceBoundary ; rdfs:range xsd:decimal .
+cmdm:normalZ a owl:DatatypeProperty ; rdfs:domain cmdm:WorkspaceBoundary ; rdfs:range xsd:decimal .
+cmdm:width a owl:DatatypeProperty ; rdfs:range xsd:decimal ; cmdm:unit unit:MilliM .
+cmdm:height a owl:DatatypeProperty ; rdfs:range xsd:decimal ; cmdm:unit unit:MilliM .
+cmdm:radius a owl:DatatypeProperty ; rdfs:range xsd:decimal ; cmdm:unit unit:MilliM .
+cmdm:enabled a owl:DatatypeProperty ; rdfs:range xsd:boolean ; rdfs:label "사용 여부"@ko .
+cmdm:warrantyMonths a owl:DatatypeProperty ; rdfs:domain cmdm:Warranty ; rdfs:range xsd:positiveInteger ; rdfs:label "보증 기간(월)"@ko .
+cmdm:warrantyStartBasis a owl:DatatypeProperty ; rdfs:domain cmdm:Warranty ; rdfs:range xsd:string ; rdfs:label "보증 기산 기준"@ko .
+cmdm:assessmentDate a owl:DatatypeProperty ; rdfs:domain cmdm:RiskAssessment ; rdfs:range xsd:date ; rdfs:label "평가일"@ko .
+
+# --- M7 ---
+cmdm:softwareVersion a owl:DatatypeProperty ; rdfs:domain cmdm:SoftwareRelease ; rdfs:range xsd:string ; rdfs:label "버전"@ko .
+cmdm:loginId a owl:DatatypeProperty ; rdfs:domain cmdm:UserAccount ; rdfs:range xsd:string ; rdfs:label "아이디"@ko .
+cmdm:tiltX a owl:DatatypeProperty ; rdfs:domain cmdm:MountingConfiguration ; rdfs:range xsd:decimal ; cmdm:unit unit:DEG ; rdfs:label "X축 기울기"@ko .
+cmdm:tiltY a owl:DatatypeProperty ; rdfs:domain cmdm:MountingConfiguration ; rdfs:range xsd:decimal ; cmdm:unit unit:DEG ; rdfs:label "Y축 기울기"@ko .
+cmdm:posX a owl:DatatypeProperty ; rdfs:range xsd:decimal ; cmdm:unit unit:MilliM .
+cmdm:posY a owl:DatatypeProperty ; rdfs:range xsd:decimal ; cmdm:unit unit:MilliM .
+cmdm:posZ a owl:DatatypeProperty ; rdfs:range xsd:decimal ; cmdm:unit unit:MilliM .
+cmdm:rotX a owl:DatatypeProperty ; rdfs:range xsd:decimal ; cmdm:unit unit:DEG .
+cmdm:rotY a owl:DatatypeProperty ; rdfs:range xsd:decimal ; cmdm:unit unit:DEG .
+cmdm:rotZ a owl:DatatypeProperty ; rdfs:range xsd:decimal ; cmdm:unit unit:DEG .
+cmdm:cogX a owl:DatatypeProperty ; rdfs:domain cmdm:TCPProfile ; rdfs:range xsd:decimal ; cmdm:unit unit:MilliM .
+cmdm:cogY a owl:DatatypeProperty ; rdfs:domain cmdm:TCPProfile ; rdfs:range xsd:decimal ; cmdm:unit unit:MilliM .
+cmdm:cogZ a owl:DatatypeProperty ; rdfs:domain cmdm:TCPProfile ; rdfs:range xsd:decimal ; cmdm:unit unit:MilliM .
+cmdm:toolMass a owl:DatatypeProperty ; rdfs:domain cmdm:TCPProfile ; rdfs:range xsd:decimal ; rdfs:label "툴 페이로드"@ko ; cmdm:unit unit:KiloGM .
+cmdm:variableValue a owl:DatatypeProperty ; rdfs:domain cmdm:Variable ; rdfs:label "값"@ko .
+cmdm:isGlobal a owl:DatatypeProperty ; rdfs:domain cmdm:Variable ; rdfs:range xsd:boolean ; rdfs:label "전역 변수 여부"@ko .
+cmdm:speed a owl:DatatypeProperty ; rdfs:domain cmdm:MoveCommand ; rdfs:range xsd:decimal ; rdfs:label "속도(mm/s 또는 °/s)"@ko .
+cmdm:acceleration a owl:DatatypeProperty ; rdfs:domain cmdm:MoveCommand ; rdfs:range xsd:decimal ; rdfs:label "가속도(mm/s² 또는 °/s²)"@ko .
+cmdm:blendingRadius a owl:DatatypeProperty ; rdfs:domain cmdm:MoveCommand ; rdfs:range xsd:decimal ; rdfs:label "블렌딩 반지름"@ko ; cmdm:unit unit:MilliM .
+cmdm:repeatCount a owl:DatatypeProperty ; rdfs:range xsd:positiveInteger ; rdfs:label "반복 수"@ko .
+cmdm:skipped a owl:DatatypeProperty ; rdfs:domain cmdm:ProgramCommand ; rdfs:range xsd:boolean ; rdfs:label "건너뛰기"@ko .
+cmdm:sequenceNo a owl:DatatypeProperty ; rdfs:domain cmdm:ProgramCommand ; rdfs:range xsd:nonNegativeInteger ; rdfs:label "순번"@ko .
+cmdm:scriptText a owl:DatatypeProperty ; rdfs:domain cmdm:ScriptCommand ; rdfs:range xsd:string ; rdfs:label "스크립트"@ko .
+
+# --- M8 ---
+cmdm:observedAt a owl:DatatypeProperty ; rdfs:domain cmdm:Observation ; rdfs:range xsd:dateTime ; rdfs:label "관측 시각"@ko .
+cmdm:jointAngle a owl:DatatypeProperty ; rdfs:domain cmdm:JointStateObservation ; rdfs:range xsd:decimal ; cmdm:unit unit:DEG ; rdfs:label "관절 각도"@ko .
+cmdm:jointSpeed a owl:DatatypeProperty ; rdfs:domain cmdm:JointStateObservation ; rdfs:range xsd:decimal ; cmdm:unit unit:DEG-PER-SEC ; rdfs:label "관절 속도"@ko .
+cmdm:powerConsumption a owl:DatatypeProperty ; rdfs:domain cmdm:PowerObservation ; rdfs:range xsd:decimal ; cmdm:unit unit:W ; rdfs:label "전력"@ko .
+cmdm:voltage a owl:DatatypeProperty ; rdfs:range xsd:decimal ; cmdm:unit unit:V ; rdfs:label "전압"@ko .
+cmdm:current a owl:DatatypeProperty ; rdfs:range xsd:decimal ; cmdm:unit unit:A ; rdfs:label "전류"@ko .
+cmdm:signalHigh a owl:DatatypeProperty ; rdfs:domain cmdm:IOStateObservation ; rdfs:range xsd:boolean ; rdfs:label "High 여부"@ko .
+cmdm:analogValue a owl:DatatypeProperty ; rdfs:domain cmdm:IOStateObservation ; rdfs:range xsd:decimal ; rdfs:label "아날로그 값"@ko .
+cmdm:systemHours a owl:DatatypeProperty ; rdfs:domain cmdm:UptimeRecord ; rdfs:range xsd:decimal ; cmdm:unit unit:HR ; rdfs:label "시스템 누적 구동 시간"@ko .
+cmdm:servoHours a owl:DatatypeProperty ; rdfs:domain cmdm:UptimeRecord ; rdfs:range xsd:decimal ; cmdm:unit unit:HR ; rdfs:label "서보 구동 시간"@ko .
+cmdm:programHours a owl:DatatypeProperty ; rdfs:domain cmdm:UptimeRecord ; rdfs:range xsd:decimal ; cmdm:unit unit:HR ; rdfs:label "프로그램 구동 시간"@ko .
+cmdm:occurredAt a owl:DatatypeProperty ; rdfs:domain cmdm:Event ; rdfs:range xsd:dateTime ; rdfs:label "발생 시각"@ko .
+cmdm:errorTitle a owl:DatatypeProperty ; rdfs:range xsd:string ; rdfs:label "오류 제목"@ko .
+cmdm:errorMessage a owl:DatatypeProperty ; rdfs:range xsd:string ; rdfs:label "오류 내용"@ko .
+cmdm:errorTarget a owl:DatatypeProperty ; rdfs:domain cmdm:ErrorEvent ; rdfs:range xsd:string ; rdfs:label "오류 대상"@ko .
+cmdm:checkDescription a owl:DatatypeProperty ; rdfs:domain cmdm:MaintenancePlanItem ; rdfs:range xsd:string ; rdfs:label "점검 사항"@ko .
+cmdm:checkTarget a owl:DatatypeProperty ; rdfs:domain cmdm:MaintenancePlanItem ; rdfs:range xsd:string ; rdfs:label "점검 항목(원문)"@ko .
+cmdm:interval a owl:DatatypeProperty ; rdfs:domain cmdm:MaintenancePlanItem ; rdfs:range xsd:duration ; rdfs:label "주기"@ko .
+cmdm:result a owl:DatatypeProperty ; rdfs:domain cmdm:MaintenanceRecord ; rdfs:range xsd:string ; rdfs:label "점검 결과"@ko .
+cmdm:ledColor a owl:DatatypeProperty ; rdfs:domain cmdm:OperatingState ; rdfs:range xsd:string ; rdfs:label "LED 색상"@ko .
+
+# --- M9 ---
+cmdm:detectedValue a owl:DatatypeProperty ; rdfs:domain cmdm:DataQualityIssue ; rdfs:range xsd:string ; rdfs:label "발견 값"@ko .
+cmdm:expectedValue a owl:DatatypeProperty ; rdfs:domain cmdm:DataQualityIssue ; rdfs:range xsd:string ; rdfs:label "기대 값/권고"@ko .
+cmdm:sourceAttribute a owl:DatatypeProperty ; rdfs:domain cmdm:DataQualityIssue ; rdfs:range xsd:string ; rdfs:label "원천 속성명"@ko .
+cmdm:accountName a owl:DatatypeProperty ; rdfs:domain cmdm:Agent ; rdfs:range xsd:string ; rdfs:label "시스템 계정명"@ko .

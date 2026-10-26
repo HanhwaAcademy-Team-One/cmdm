@@ -1,0 +1,24 @@
+name: check
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  schema:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Turtle 문법·용어·버전 검사
+        run: python3 tools/build_docs.py --check
+      - name: docs/ 가 src/ 와 일치하는지 확인
+        run: |
+          python3 tools/build_docs.py
+          git diff --exit-code -- docs/ || {
+            echo "::error::docs/ 가 최신이 아닙니다. 로컬에서 python3 tools/build_docs.py 를 실행하고 결과를 함께 커밋하세요."
+            exit 1
+          }
